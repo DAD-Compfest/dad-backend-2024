@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.2.3"
 	id("io.spring.dependency-management") version "1.1.4"
+	id("jacoco")
 }
 
 group = "com.adpro"
@@ -47,6 +48,9 @@ dependencies {
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testImplementation("org.springframework.modulith:spring-modulith-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
+	testImplementation("org.mockito:mockito-core:3.12.4")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
 }
 
 dependencyManagement {
@@ -57,4 +61,12 @@ dependencyManagement {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	finalizedBy("jacocoTestReport")
+}
+jacoco {
+	toolVersion = "0.8.7"
+}
+
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
 }
