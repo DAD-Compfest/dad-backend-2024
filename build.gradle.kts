@@ -26,6 +26,7 @@ extra["springModulithVersion"] = "1.1.2"
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("com.google.cloud.sql:postgres-socket-factory:1.0.16")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-mustache")
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -48,9 +49,13 @@ dependencies {
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testImplementation("org.springframework.modulith:spring-modulith-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
-	testImplementation("org.mockito:mockito-core:3.12.4")
-	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
-	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
+	testImplementation("org.mockito:mockito-core")
+	testImplementation("org.junit.jupiter:junit-jupiter")
+	testImplementation("org.junit.jupiter:junit-jupiter-api")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+jacoco {
 }
 
 dependencyManagement {
@@ -63,10 +68,4 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 	finalizedBy("jacocoTestReport")
 }
-jacoco {
-	toolVersion = "0.8.7"
-}
 
-tasks.jacocoTestReport {
-	dependsOn(tasks.test)
-}
