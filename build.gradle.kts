@@ -3,13 +3,14 @@ plugins {
 	id("org.springframework.boot") version "3.2.3"
 	id("io.spring.dependency-management") version "1.1.4"
 	id("jacoco")
+	id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "com.adpro"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_17
 }
 
 configurations {
@@ -56,6 +57,14 @@ dependencies {
 }
 
 jacoco {
+}
+
+sonar {
+  properties {
+    property("sonar.projectKey", "Adpro-C4_backend")
+    property("sonar.organization", "adpro-c4")
+    property("sonar.host.url", "https://sonarcloud.io")
+  }
 }
 
 dependencyManagement {
