@@ -26,11 +26,12 @@ public class AdminTest {
         assertTrue(UserType.contains(UserType.ADMIN.getUserType()));;
     }
     @Test
-    public void testCreateCustomer() {
+    public void testCreateAdmin() {
         assertNotNull(admin);
         assertEquals("myusername", admin.getUsername());
         assertEquals("mypassword", admin.getPassword());
         assertEquals("myemail@gmail.com", admin.getEmail());
+        assertEquals(UserType.ADMIN.getUserType(), admin.getRole());
     }
 
     @Test
