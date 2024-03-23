@@ -2,13 +2,15 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.2.3"
 	id("io.spring.dependency-management") version "1.1.4"
+	id("jacoco")
+	id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "com.adpro"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_17
 }
 
 configurations {
@@ -25,6 +27,7 @@ extra["springModulithVersion"] = "1.1.2"
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("com.google.cloud.sql:postgres-socket-factory:1.0.16")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-mustache")
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -47,6 +50,21 @@ dependencies {
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testImplementation("org.springframework.modulith:spring-modulith-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
+	testImplementation("org.mockito:mockito-core")
+	testImplementation("org.junit.jupiter:junit-jupiter")
+	testImplementation("org.junit.jupiter:junit-jupiter-api")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+jacoco {
+}
+
+sonar {
+  properties {
+    property("sonar.projectKey", "Adpro-C4_backend")
+    property("sonar.organization", "adpro-c4")
+    property("sonar.host.url", "https://sonarcloud.io")
+  }
 }
 
 dependencyManagement {
@@ -55,6 +73,17 @@ dependencyManagement {
 	}
 }
 
+tasks.withType<JacocoReport> {
+  reports {
+    xml.required.set(true)
+    csv.required.set(true)
+    html.required.set(false)
+  }
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
+	finalizedBy(tasks.jacocoTestReport)
 }
+
+
