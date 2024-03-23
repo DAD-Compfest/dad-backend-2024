@@ -8,12 +8,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.adpro.backend.type.UserType;
+
 public class CustomerTest {
     private Customer customer;
 
     @BeforeEach
     public void setUp() {
         customer = new Customer("myusername", "mypassword", "myemail@gmail.com", "myname", "myphonenumber");
+    }
+
+    @Test 
+    public void getCustomerType(){
+        assertEquals("CUSTOMER", UserType.CUSTOMER.getUserType());
+    }
+
+    @Test
+    public void isExistCustomerType(){
+        assertTrue(UserType.contains(UserType.CUSTOMER.getUserType()));;
     }
 
     @Test
