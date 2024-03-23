@@ -36,7 +36,7 @@ public class CustomerTest {
         assertEquals("myemail@gmail.com", customer.getEmail());
         assertEquals("myname", customer.getName());
         assertEquals("myphonenumber", customer.getPhoneNumber());
-        assertEquals("CUSTOMER", customer.getRole());
+        assertEquals(UserType.CUSTOMER.getUserType(), customer.getRole());
     }
 
     @Test
