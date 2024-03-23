@@ -1,5 +1,7 @@
 package com.adpro.backend.model;
 
+import com.adpro.backend.type.UserType;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +21,7 @@ public class Customer {
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.role = "CUSTOMER";
+        this.role = UserType.CUSTOMER.getUserType();
     }
 
     public boolean authenticate(String password){
