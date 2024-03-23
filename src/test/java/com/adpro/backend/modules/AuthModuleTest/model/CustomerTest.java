@@ -1,4 +1,4 @@
-package com.adpro.backend.model;
+package com.adpro.backend.modules.AuthModuleTest.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -8,7 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.adpro.backend.type.UserType;
+import com.adpro.backend.modules.AuthModule.model.Customer;
+import com.adpro.backend.modules.AuthModule.type.UserType;
 
 public class CustomerTest {
     private Customer customer;
