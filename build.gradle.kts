@@ -73,18 +73,17 @@ dependencyManagement {
 	}
 }
 
-
+tasks.withType<JacocoReport> {
+  reports {
+    xml.required.set(true)
+    csv.required.set(true)
+    html.required.set(false)
+  }
+}
 
 tasks.withType<Test> {
 	useJUnitPlatform()
-	finalizedBy("jacocoTestReport")
+	finalizedBy(tasks.jacocoTestReport)
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled true
-    }
-    dependsOn test
-}
+
