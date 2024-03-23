@@ -7,25 +7,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Customer {
-    private String username;
-    private String password;
-    private String email;
-    private String role;
+public class Customer extends AbstractUser {
     private String name;
     private String phoneNumber;
 
     public Customer(String username, String password, String email, String name, String phoneNumber){
-        this.username = username;
-        this.email = email;
-        this.password = password;
+        super(username, password, email, UserType.CUSTOMER.getUserType());
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.role = UserType.CUSTOMER.getUserType();
     }
-
-    public boolean authenticate(String password){
-        return this.password.equals(password);
-    }
-
 }

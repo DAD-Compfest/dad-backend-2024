@@ -7,20 +7,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Admin {
-    private String username;
-    private String password;
-    private String email;
-    private String role;
-
+public class Admin extends AbstractUser {
     public Admin(String username, String password, String email){
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.role = UserType.ADMIN.getUserType();
+        super(username, password, email, UserType.ADMIN.getUserType());
     }
-    public boolean authenticate(String password){
-        return this.password.equals(password);
-    }
-
 }
