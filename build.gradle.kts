@@ -3,6 +3,7 @@ plugins {
 	id("org.springframework.boot") version "3.2.3"
 	id("io.spring.dependency-management") version "1.1.4"
 	id("jacoco")
+	id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "com.adpro"
@@ -59,14 +60,31 @@ dependencies {
 jacoco {
 }
 
+sonar {
+  properties {
+    property("sonar.projectKey", "Adpro-C4_backend")
+    property("sonar.organization", "adpro-c4")
+    property("sonar.host.url", "https://sonarcloud.io")
+  }
+}
+
 dependencyManagement {
 	imports {
 		mavenBom("org.springframework.modulith:spring-modulith-bom:${property("springModulithVersion")}")
 	}
 }
 
+tasks.withType<JacocoReport> {
+  reports {
+    xml.required.set(true)
+    csv.required.set(true)
+    html.required.set(false)
+  }
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
-	finalizedBy("jacocoTestReport")
+	finalizedBy(tasks.jacocoTestReport)
 }
+
 
