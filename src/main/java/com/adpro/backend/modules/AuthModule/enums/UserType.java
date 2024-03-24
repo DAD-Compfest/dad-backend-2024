@@ -1,4 +1,4 @@
-package com.adpro.backend.modules.AuthModule.type;
+package com.adpro.backend.modules.authmodule.enums;
 
 public enum UserType {
     ADMIN("ADMIN"),

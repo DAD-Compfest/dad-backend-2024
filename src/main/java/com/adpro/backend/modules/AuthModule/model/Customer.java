@@ -1,6 +1,6 @@
-package com.adpro.backend.modules.AuthModule.model;
+package com.adpro.backend.modules.authmodule.model;
 
-import com.adpro.backend.modules.AuthModule.type.UserType;
+import com.adpro.backend.modules.authmodule.enums.UserType;
 
 import lombok.Getter;
 import lombok.Setter;

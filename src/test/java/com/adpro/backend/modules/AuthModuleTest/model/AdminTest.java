@@ -1,4 +1,4 @@
-package com.adpro.backend.modules.AuthModuleTest.model;
+package com.adpro.backend.modules.authmoduletest.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.adpro.backend.modules.AuthModule.model.Admin;
-import com.adpro.backend.modules.AuthModule.type.UserType;
+import com.adpro.backend.modules.authmodule.enums.UserType;
+import com.adpro.backend.modules.authmodule.model.Admin;
 
 public class AdminTest {
     private Admin admin;

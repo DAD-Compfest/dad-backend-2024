@@ -1,4 +1,4 @@
-package com.adpro.backend.modules.AuthModule.model;
+package com.adpro.backend.modules.authmodule.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;

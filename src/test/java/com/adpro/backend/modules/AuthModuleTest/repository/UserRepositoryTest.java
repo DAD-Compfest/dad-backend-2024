@@ -5,15 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.InjectMocks;
 
 import com.adpro.backend.modules.authmodule.model.AbstractUser;
 import com.adpro.backend.modules.authmodule.model.Admin;
@@ -22,9 +17,8 @@ import com.adpro.backend.modules.authmodule.repository.UserRepository;
 
 
 public class UserRepositoryTest {
-    @InjectMocks
+
     private UserRepository<Customer> customerRepository;
-    @InjectMocks
     private UserRepository<Admin> adminRepository;
     private AbstractUser user1;
     private AbstractUser user2;
@@ -34,6 +28,8 @@ public class UserRepositoryTest {
 
     @BeforeEach
     public void setUp(){
+        customerRepository = new UserRepository<>();
+        adminRepository = new UserRepository<>();
         user1 = new Customer("username1", "password1", "email1", "name1", "additionalInfo1");
         user2 = new Customer("username2", "password2", "email2", "name2", "additionalInfo2");
         user3 = new Admin("username3", "password3", "email3");

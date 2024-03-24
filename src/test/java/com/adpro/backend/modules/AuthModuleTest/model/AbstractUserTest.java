@@ -1,14 +1,14 @@
-package com.adpro.backend.modules.AuthModuleTest.model;
+package com.adpro.backend.modules.authmoduletest.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.Test;
 
-import com.adpro.backend.modules.AuthModule.model.AbstractUser;
-import com.adpro.backend.modules.AuthModule.model.Admin;
-import com.adpro.backend.modules.AuthModule.model.Customer;
-import com.adpro.backend.modules.AuthModule.type.UserType;
+import com.adpro.backend.modules.authmodule.enums.UserType;
+import com.adpro.backend.modules.authmodule.model.AbstractUser;
+import com.adpro.backend.modules.authmodule.model.Admin;
+import com.adpro.backend.modules.authmodule.model.Customer;
 
 public class AbstractUserTest {
     AbstractUser user;
