@@ -19,11 +19,11 @@ public class UserRepository<T extends AbstractUser> {
     }
 
     public T update(T user) {
-        if (user == null) {
+        if (isUserNull(user)) {
             throw new NullPointerException("User cannot be null");
         }
         
-        if (!userMap.containsKey(user.getUsername())) {
+        if (!isUserExist(user)) {
             throw new IllegalArgumentException("User does not exist in the user map");
         }
         
@@ -31,19 +31,30 @@ public class UserRepository<T extends AbstractUser> {
         return user;
     }
     public void delete(String username) {
-        if (!userMap.containsKey(username)) {
+        if (!isUserExist(username)) {
             throw new IllegalArgumentException("User with the specified username does not exist");
         }
         
         userMap.remove(username);
     }
 
+    private boolean isUserExist(T user){
+        return userMap.containsKey(user.getUsername());
+    }
+
+    private boolean isUserExist(String username){
+        return userMap.containsKey(username);
+    }
+    private boolean isUserNull(T user){
+        return user == null;
+    }
+
     public T add(T user) {
-        if (user == null) {
+        if (isUserNull(user)) {
             throw new NullPointerException("User cannot be null");
         }
         
-        if (userMap.containsKey(user.getUsername())) {
+        if (isUserExist(user)) {
             throw new IllegalArgumentException("Username must be unique");
         }
         
