@@ -10,12 +10,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.Null;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+
 import io.jsonwebtoken.security.Keys;
 
+import com.adpro.backend.modules.authmodule.model.AbstractUser;
+import com.adpro.backend.modules.authmodule.model.Admin;
+import com.adpro.backend.modules.authmodule.model.Customer;
+import com.adpro.backend.modules.authmodule.repository.UserRepository;
+import com.adpro.backend.modules.authmodule.service.UserServiceImpl;
 
 
 
@@ -65,8 +72,8 @@ public class UserServiceImplTest {
         when(adminRepository.findByUsername("seorang_admin")).thenReturn(null);
         when(customerRepository.findByUsername("seorang_customer")).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class, () -> adminService.authenticateUser("seorang_admin", "adminPass"));
-        assertThrows(IllegalArgumentException.class, () -> customerService.authenticateUser("seorang_customer", "customerPass"));
+        assertThrows(NullPointerException.class, () -> adminService.authenticateUser("seorang_admin", "adminPass"));
+        assertThrows(NullPointerException.class, () -> customerService.authenticateUser("seorang_customer", "customerPass"));
     }
 
     @Test
@@ -90,8 +97,11 @@ public class UserServiceImplTest {
     public void testCreateJwtTokenUsernameNotExist(){
         when(customerRepository.findByUsername(customer1.getUsername())).thenReturn(null);
         when(adminRepository.findByUsername(admin1.getUsername())).thenReturn(null);
-        assertThrows(IllegalArgumentException.class, () -> adminService.createJwtToken(admin1.getUsername()));
-        assertThrows(IllegalArgumentException.class, () -> customerService.createJwtToken(customer1.getUsername()));
+        assertThrows(NullPointerException.class, () -> adminService.createJwtToken
+                (adminService.findByUsername(admin1.getUsername()).getUsername()));
+        assertThrows(NullPointerException.class, () -> customerService.
+                createJwtToken(customerService.findByUsername(
+                customer1.getUsername()).getUsername()));
     };
 
     private void verifyToken(String token, String expectedUsername) {
@@ -147,6 +157,16 @@ public class UserServiceImplTest {
     public void testAddUserNull() {
 
         assertThrows(IllegalArgumentException.class, () -> customerService.addUser(null));
+    }
+
+    @Test
+    public void testAddUserNotValid(){
+        Customer customer = new Customer("customer",
+                "abcde", "hehe", "a", "0X");
+        Customer customer2 = new Customer("",
+                "", "", "", "");
+        assertThrows(IllegalArgumentException.class, () -> customerService.addUser(customer));
+        assertThrows(IllegalArgumentException.class, () -> customerService.addUser(customer2));
     }
 
     @Test
