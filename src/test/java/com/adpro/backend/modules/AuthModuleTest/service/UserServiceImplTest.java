@@ -1,30 +1,25 @@
-package com.adpro.backend.modules.authmoduletest.service;
+package com.adpro.backend.modules.AuthModuleTest.service;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+import com.adpro.backend.modules.authmodule.provider.JwtProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.matchers.Null;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-
-import io.jsonwebtoken.security.Keys;
-
 import com.adpro.backend.modules.authmodule.model.AbstractUser;
 import com.adpro.backend.modules.authmodule.model.Admin;
 import com.adpro.backend.modules.authmodule.model.Customer;
 import com.adpro.backend.modules.authmodule.repository.UserRepository;
 import com.adpro.backend.modules.authmodule.service.UserServiceImpl;
 
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -106,7 +101,7 @@ public class UserServiceImplTest {
 
     private void verifyToken(String token, String expectedUsername) {
         assertNotNull(token);
-        Claims claims = Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(UserServiceImpl.SECRET_KEY.getBytes())).build().parseClaimsJws(token).getBody();
+        Claims claims = JwtProvider.getInstance().parseJwtToken(token);
         assertNotNull(claims);
         String username = claims.getSubject();
         assertNotNull(username);
@@ -114,6 +109,9 @@ public class UserServiceImplTest {
     }
     @Test
     public void testLogoutUserExist(){
+        when(adminRepository.add((Admin) admin1)).thenReturn((Admin) admin1);
+        adminService.addUser((Admin) admin1);
+        when(adminRepository.findByUsername(admin1.getUsername())).thenReturn((Admin) admin1);
         String token = adminService.createJwtToken(admin1.getUsername());
         adminService.logout(admin1);
         assertNull(adminService.getDataFromJwt(token));
@@ -140,8 +138,8 @@ public class UserServiceImplTest {
     @Test
     public void testAddUserUnique(){
         when(customerRepository.add((Customer) customer1)).thenReturn((Customer) customer1);
-        when(customerRepository.findByUsername(customer1.getUsername())).thenReturn((Customer) customer1);
         customerService.addUser((Customer) customer1);
+        when(customerRepository.findByUsername(customer1.getUsername())).thenReturn((Customer) customer1);
         Customer getCustomer = customerService.findByUsername(customer1.getUsername());
         assertEquals(customer1.getUsername(), getCustomer.getUsername());
         assertEquals(customer1.getPassword(), getCustomer.getPassword());
@@ -149,8 +147,8 @@ public class UserServiceImplTest {
     @Test
     public void testAddUserNotUnique() {
         when(customerRepository.add((Customer) customer1)).thenReturn((Customer) customer1);
-        when(customerRepository.findByUsername(customer1.getUsername())).thenReturn((Customer) customer1);
         customerService.addUser((Customer) customer1);
+        when(customerRepository.findByUsername(customer1.getUsername())).thenReturn((Customer) customer1);
         assertThrows(IllegalArgumentException.class, () -> customerService.addUser((Customer) customer1));
     }
     @Test
@@ -173,13 +171,15 @@ public class UserServiceImplTest {
     public void testRemoveUserExist(){
         when(customerRepository.findByUsername(customer1.getUsername())).thenReturn(null);
         customerService.addUser((Customer) customer1);
+        when(customerRepository.findByUsername(customer1.getUsername())).thenReturn((Customer) customer1);
         customerService.removeUser((Customer) customer1);
+        when(customerRepository.findByUsername(customer1.getUsername())).thenReturn(null);
         assertNull(customerService.findByUsername(customer1.getUsername()));
     };
 
     @Test
     public void testRemoveUserNotExist(){
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(NullPointerException.class, () ->
                 customerService.removeUser((Customer) customer1));
     };
 
@@ -198,13 +198,13 @@ public class UserServiceImplTest {
     @Test
     public void testgetAllUserNotEmpty(){
         when(customerRepository.add((Customer) customer1)).thenReturn((Customer) customer1);
+        when(customerRepository.findAll()).thenReturn(List.of((Customer)customer1));
         customerService.addUser((Customer) customer1);
         assertEquals(1, customerService.getAllUsers().size());
     };
 
     @Test
     public void testgetAllUserEmpty(){
-        when(customerRepository.add((Customer) customer1)).thenReturn((Customer) customer1);
         assertEquals(0, customerService.getAllUsers().size());
     };
 

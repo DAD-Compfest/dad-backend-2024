@@ -1,4 +1,4 @@
-package com.adpro.backend.modules.authmoduletest.repository;
+package com.adpro.backend.modules.AuthModuleTest.repository;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;

@@ -5,6 +5,8 @@ import com.adpro.backend.modules.authmodule.enums.UserType;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.regex.Pattern;
+
 @Getter
 @Setter
 public class Customer extends AbstractUser {
@@ -16,4 +18,13 @@ public class Customer extends AbstractUser {
         this.name = name;
         this.phoneNumber = phoneNumber;
     }
+
+    @Override
+    public boolean isValid() {
+        return super.isValid() &&
+                isNotNullOrEmpty(name) &&
+                isNotNullOrEmpty(phoneNumber) &&
+                isAllDigits(phoneNumber);
+    }
+
 }
