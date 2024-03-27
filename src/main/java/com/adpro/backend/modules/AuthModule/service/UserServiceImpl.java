@@ -25,46 +25,55 @@ public class UserServiceImpl<T extends AbstractUser> extends UserService<T>{
 
     @Override
     public T updateUser(T user) {
-        if(user == null){
-            throw new NullPointerException();
-        }
-        if(userRepository.findByUsername(user.getUsername()) == null){
-            throw  new IllegalArgumentException();
-        }
+        verifyUserNotNull(user);
+        verifyUserExists(user.getUsername());
         return  userRepository.update(user);
+    }
+
+    private void verifyUserNotNull(AbstractUser user) {
+        if (user == null) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private void verifyUserExists(String username) {
+        if (userRepository.findByUsername(username) == null) {
+            throw new IllegalArgumentException();
+        }
+    }
+    private void verifyUserNotExists(String username) {
+        if (userRepository.findByUsername(username) != null) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private  void verifyUserIsValid(AbstractUser user) {
+        if (!user.isValid()) {
+            throw new IllegalArgumentException();
+        }
     }
 
     @Override
     public T addUser(T user) {
-        if(user == null){
-            throw new IllegalArgumentException();
-        }
-
-        if(!user.isValid()){
-            throw new IllegalArgumentException();
-        }
-
-        if(userRepository.findByUsername(user.getUsername())!= null){
-            throw  new IllegalArgumentException();
-        }
+        verifyUserNotNull(user);
+        verifyUserIsValid(user);
+        verifyUserNotExists(user.getUsername());
         return  userRepository.add(user);
     }
 
     @Override
     public void removeUser(T user) {
-        if(userRepository.findByUsername(user.getUsername())== null){
-            throw  new NullPointerException();
-        }
+        verifyUserNotNull(user);
+        verifyUserExists(user.getUsername());
         userRepository.delete(user.getUsername());
     }
 
     @Override
     public boolean authenticateUser(String username, String password) {
         T user = userRepository.findByUsername(username);
-        if(user == null){
-            throw  new NullPointerException();
-        }
-        return userRepository.findByUsername(username).authenticate(password);
+        verifyUserNotNull(user);
+        verifyUserExists(user.getUsername());
+        return user.authenticate(password);
     }
 
     @Override
@@ -85,10 +94,8 @@ public class UserServiceImpl<T extends AbstractUser> extends UserService<T>{
 
     @Override
     public void logout(AbstractUser user) {
-        T currUser = userRepository.findByUsername(user.getUsername());
-        if(currUser == null){
-            throw new IllegalArgumentException();
-        }
+        verifyUserNotNull(user);
+        verifyUserExists(user.getUsername());
         JwtProvider.getInstance().revokeJwtToken(JwtProvider.getInstance().getToken(user.getUsername()));
     }
     

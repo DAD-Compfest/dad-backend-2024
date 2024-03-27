@@ -17,8 +17,6 @@ import com.adpro.backend.modules.authmodule.model.Admin;
 import com.adpro.backend.modules.authmodule.model.Customer;
 import com.adpro.backend.modules.authmodule.repository.UserRepository;
 import com.adpro.backend.modules.authmodule.service.UserServiceImpl;
-
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -67,8 +65,8 @@ public class UserServiceImplTest {
         when(adminRepository.findByUsername("seorang_admin")).thenReturn(null);
         when(customerRepository.findByUsername("seorang_customer")).thenReturn(null);
 
-        assertThrows(NullPointerException.class, () -> adminService.authenticateUser("seorang_admin", "adminPass"));
-        assertThrows(NullPointerException.class, () -> customerService.authenticateUser("seorang_customer", "customerPass"));
+        assertThrows(IllegalArgumentException.class, () -> adminService.authenticateUser("seorang_admin", "adminPass"));
+        assertThrows(IllegalArgumentException.class, () -> customerService.authenticateUser("seorang_customer", "customerPass"));
     }
 
     @Test
@@ -179,7 +177,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testRemoveUserNotExist(){
-        assertThrows(NullPointerException.class, () ->
+        assertThrows(IllegalArgumentException.class, () ->
                 customerService.removeUser((Customer) customer1));
     };
 
@@ -230,7 +228,7 @@ public class UserServiceImplTest {
     @Test
     public void testUpdateUserNull() {
 
-        assertThrows(NullPointerException.class, () -> customerService.updateUser(null));
+        assertThrows(IllegalArgumentException.class, () -> customerService.updateUser(null));
     }
 
 }
