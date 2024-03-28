@@ -27,7 +27,7 @@ public class UserServiceImpl<T extends AbstractUser> extends UserService<T>{
     public T updateUser(T user) {
         verifyUserNotNull(user);
         verifyUserExists(user.getUsername());
-        return  userRepository.update(user);
+        return  userRepository.save(user);
     }
 
     private void verifyUserNotNull(AbstractUser user) {
@@ -58,14 +58,14 @@ public class UserServiceImpl<T extends AbstractUser> extends UserService<T>{
         verifyUserNotNull(user);
         verifyUserIsValid(user);
         verifyUserNotExists(user.getUsername());
-        return  userRepository.add(user);
+        return  userRepository.save(user);
     }
 
     @Override
     public void removeUser(T user) {
         verifyUserNotNull(user);
         verifyUserExists(user.getUsername());
-        userRepository.delete(user.getUsername());
+        userRepository.deleteByUsername(user.getUsername());
     }
 
     @Override

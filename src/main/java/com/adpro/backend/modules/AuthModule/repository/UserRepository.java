@@ -7,7 +7,6 @@ import com.adpro.backend.modules.authmodule.model.AbstractUser;
 public interface UserRepository <T extends AbstractUser> extends JpaRepository<T, Long>{
     T findByUsername(String username);
     List<T> findAll();
-    T update(T user);
-    void delete(String username);
-    T add(T user);
+    void deleteByUsername(String username);
+
 }
