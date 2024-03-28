@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.adpro.backend.modules.authmodule.provider.JwtProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,18 @@ public class UserServiceImplTest {
     void setUp(){
         admin1 = new Admin("seorang_admin", "adminPass", "admin1@gmail.com");
         customer1 = new Customer("seorang_customer", "customerPass", "customer1@gmail.com", "nama customer", "0823561528");
+    }
+
+    @AfterEach
+    void tearDown(){
+        if(adminRepository.findByUsername(admin1.getUsername()) != null){
+            adminRepository.delete(admin1.getUsername());
+        }
+
+        if(customerRepository.findByUsername(customer1.getUsername()) != null){
+            customerRepository.delete(customer1.getUsername());
+        }
+
     }
     @Test
     public void testAuthenticateUserValid(){

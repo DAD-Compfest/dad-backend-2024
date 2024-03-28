@@ -1,5 +1,6 @@
 package com.adpro.backend.modules.authmodule.model;
 
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,12 @@ import java.util.regex.Pattern;
 
 @Getter
 @Setter
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class AbstractUser {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String username;
     private String password;
     private String email;
@@ -20,6 +26,10 @@ public abstract class AbstractUser {
         this.password = password;
         this.email = email;
         this.role = role;
+    }
+
+    public AbstractUser() {
+
     }
 
     public boolean isValid(){

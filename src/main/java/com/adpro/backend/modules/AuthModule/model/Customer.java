@@ -2,6 +2,7 @@ package com.adpro.backend.modules.authmodule.model;
 
 import com.adpro.backend.modules.authmodule.enums.UserType;
 
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.regex.Pattern;
 
 @Getter
 @Setter
+@Entity
 public class Customer extends AbstractUser {
     private String name;
     private String phoneNumber;
@@ -17,6 +19,10 @@ public class Customer extends AbstractUser {
         super(username, password, email, UserType.CUSTOMER.getUserType());
         this.name = name;
         this.phoneNumber = phoneNumber;
+    }
+
+    public Customer() {
+
     }
 
     @Override

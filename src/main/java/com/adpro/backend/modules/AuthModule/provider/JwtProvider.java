@@ -11,10 +11,13 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class JwtProvider {
 
-    private  Map<String, String> tokens;
+    private final Map<String, String> tokens;
     private static JwtProvider instance;
     private final Key secretKey;
     private final Set<String> revokedTokens;
@@ -23,6 +26,8 @@ public class JwtProvider {
         secretKey  = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         revokedTokens = ConcurrentHashMap.newKeySet();
         tokens = new ConcurrentHashMap<>();
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(this::cleanUpExpiredTokens, 0, 1, TimeUnit.HOURS);
     }
 
     public static synchronized JwtProvider getInstance() {
@@ -30,6 +35,29 @@ public class JwtProvider {
             instance = new JwtProvider();
         }
         return instance;
+    }
+
+    public void cleanUpExpiredTokens() {
+        Date now = new Date();
+        revokedTokens.removeIf(token -> {
+            try {
+                Claims claims = parseJwtToken(token);
+                Date expirationDate = claims.getExpiration();
+                return expirationDate != null && expirationDate.before(now);
+            } catch (Exception e) {
+                return true;
+            }
+        });
+        tokens.entrySet().removeIf(entry -> {
+            try {
+                Claims claims = parseJwtToken(entry.getValue());
+                Date expirationDate = claims.getExpiration();
+                return expirationDate != null && expirationDate.before(now);
+            } catch (Exception e) {
+                return true;
+            }
+        });
+
     }
 
     public String createJwtToken(String subject) {
