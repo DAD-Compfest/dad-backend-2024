@@ -15,6 +15,6 @@ public class Admin extends AbstractUser {
     }
 
     public Admin() {
-
+        setRole(UserType.ADMIN.getUserType());
     }
 }

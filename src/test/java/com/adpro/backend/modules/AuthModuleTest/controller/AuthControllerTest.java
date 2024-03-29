@@ -35,8 +35,6 @@ import com.adpro.backend.modules.authmodule.service.UserService;
 @AutoConfigureMockMvc
 public class AuthControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
     @InjectMocks
     private AuthController authController;
     @Mock

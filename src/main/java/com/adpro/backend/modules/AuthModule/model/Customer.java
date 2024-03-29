@@ -20,7 +20,7 @@ public class Customer extends AbstractUser {
     }
 
     public Customer() {
-
+        setRole(UserType.CUSTOMER.getUserType());
     }
 
     @Override
