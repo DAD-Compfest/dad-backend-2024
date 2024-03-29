@@ -43,10 +43,6 @@ public abstract class AbstractUser {
                 isNotNullOrEmpty(getEmail()) && isValidEmail(getEmail());
     };
 
-    public boolean authenticate(String password){
-        return this.password.equals(password);
-    }
-
     protected boolean isNotNullOrEmpty(String value) {
         return value != null && !value.isEmpty();
     }
