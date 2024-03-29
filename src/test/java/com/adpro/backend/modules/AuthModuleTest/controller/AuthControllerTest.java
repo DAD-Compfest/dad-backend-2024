@@ -2,6 +2,7 @@ package com.adpro.backend.modules.AuthModuleTest.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,7 @@ import com.adpro.backend.modules.authmodule.controller.AuthController;
 import com.adpro.backend.modules.authmodule.enums.UserType;
 import com.adpro.backend.modules.authmodule.model.Admin;
 import  com.adpro.backend.modules.authmodule.model.Customer;
+import com.adpro.backend.modules.authmodule.model.RegistrationRequest;
 import com.adpro.backend.modules.authmodule.service.UserService;
 
 
@@ -53,6 +55,7 @@ public class AuthControllerTest {
         admin.setRole("ADMIN");
         admin.setEmail("adminmail@gmail.com");
 
+        
         customer = new Customer();
         customer.setUsername("customer");
         customer.setPassword("customerpass");
@@ -62,6 +65,14 @@ public class AuthControllerTest {
         customer.setPhoneNumber("089234512321");
 
     }
+
+    @AfterEach
+    void tearDown(){
+        if(adminService.findByUsername(admin.getUsername()) != null) adminService.removeUser(admin);
+        if(customerService.findByUsername(customer.getUsername()) != null) customerService.removeUser(customer);
+    }
+
+
 
     @Test
     public void testLoginAdminSuccess() throws Exception {
@@ -115,8 +126,10 @@ public class AuthControllerTest {
     public void testRegisterAdminSuccess() throws Exception {
         String passwordConfirmation = admin.getPassword();
         when(adminService.addUser(any(Admin.class))).thenReturn(admin);
-
-        ResponseEntity<?> responseEntity = authController.registerAdmin(admin, passwordConfirmation);
+        RegistrationRequest<Admin> registrationRequest = new RegistrationRequest<>();
+        registrationRequest.setUser(admin);
+        registrationRequest.setPasswordConfirmation(passwordConfirmation);
+        ResponseEntity<?> responseEntity = authController.registerAdmin(registrationRequest);
         assertEquals(HttpStatus.ACCEPTED, responseEntity.getStatusCode());
     }
 
@@ -124,8 +137,10 @@ public class AuthControllerTest {
     public void testRegisterCustomerSuccess() throws Exception {
         String passwordConfirmation = customer.getPassword();
         when(customerService.addUser(any(Customer.class))).thenReturn(customer);
-
-        ResponseEntity<?> responseEntity = authController.registerCustomer(customer, passwordConfirmation);
+        RegistrationRequest<Customer> registrationRequest = new RegistrationRequest<>();
+        registrationRequest.setUser(customer);
+        registrationRequest.setPasswordConfirmation(passwordConfirmation);
+        ResponseEntity<?> responseEntity = authController.registerCustomer(registrationRequest);
         assertEquals(HttpStatus.ACCEPTED, responseEntity.getStatusCode());
     }
 
@@ -133,8 +148,10 @@ public class AuthControllerTest {
     public void testRegisterAdminFailured() throws Exception {
         String passwordConfirmation = "";
         when(adminService.addUser(any(Admin.class))).thenReturn(admin);
-
-        ResponseEntity<?> responseEntity = authController.registerAdmin(admin, passwordConfirmation);
+        RegistrationRequest<Admin> registrationRequest = new RegistrationRequest<>();
+        registrationRequest.setUser(admin);
+        registrationRequest.setPasswordConfirmation(passwordConfirmation);
+        ResponseEntity<?> responseEntity = authController.registerAdmin(registrationRequest);
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
     }
 
@@ -142,8 +159,10 @@ public class AuthControllerTest {
     public void testRegisterCustomerFailured() throws Exception {
         String passwordConfirmation = "";
         when(customerService.addUser(any(Customer.class))).thenReturn(customer);
-
-        ResponseEntity<?> responseEntity = authController.registerCustomer(customer, passwordConfirmation);
+        RegistrationRequest<Customer> registrationRequest = new RegistrationRequest<>();
+        registrationRequest.setUser(customer);
+        registrationRequest.setPasswordConfirmation(passwordConfirmation);
+        ResponseEntity<?> responseEntity = authController.registerCustomer(registrationRequest);
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
     }
 

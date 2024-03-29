@@ -4,6 +4,8 @@ import com.adpro.backend.modules.authmodule.enums.UserType;
 import com.adpro.backend.modules.authmodule.model.AbstractUser;
 import com.adpro.backend.modules.authmodule.model.Admin;
 import com.adpro.backend.modules.authmodule.model.Customer;
+import com.adpro.backend.modules.authmodule.model.RegistrationRequest;
+import com.adpro.backend.modules.authmodule.provider.AuthProvider;
 import com.adpro.backend.modules.authmodule.provider.JwtProvider;
 import com.adpro.backend.modules.authmodule.service.UserService;
 import com.adpro.backend.modules.commonmodule.util.ResponseHandler;
@@ -12,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -31,10 +32,8 @@ public class AuthController {
     private UserService<Customer> customerService;
 
 
-    private final BCryptPasswordEncoder passwordEncoder;
 
     AuthController(){
-        passwordEncoder = new BCryptPasswordEncoder();
     }
 
     @PostMapping("/login/admin")
@@ -50,12 +49,13 @@ public class AuthController {
     public ResponseEntity<Object> login(JsonNode requestBody, UserType userType) {
         String username = requestBody.get("username").asText();
         String password = requestBody.get("password").asText();
+        System.out.println(username);
         String role = userType.getUserType();
         boolean isValidAuthenticated = userType.equals(UserType.ADMIN) ?
-                adminService.authenticateUser(username, passwordEncoder.encode(password)) :
-                customerService.authenticateUser(username, passwordEncoder.encode(password));
+                adminService.authenticateUser(username, password) :
+                customerService.authenticateUser(username, password);
         if(!isValidAuthenticated){
-            return ResponseHandler.generateResponse("Gagal login", HttpStatus.UNAUTHORIZED, new HashMap<>());
+            return ResponseHandler.generateResponse("Maaf username atau password tidak sesuai", HttpStatus.UNAUTHORIZED, new HashMap<>());
         }
         return generateValidLoginResponse(username, role);
     }
@@ -63,7 +63,7 @@ public class AuthController {
     private ResponseEntity<Object> generateValidLoginResponse(String username, String role) {
             Map<String, Object> objectMap = new HashMap<>();
             Object userData = role.equals(UserType.ADMIN.getUserType()) ? adminService.findByUsername(username) : customerService.findByUsername(username);;
-            objectMap.put("userData", userData);
+            objectMap.put("user", userData);
             objectMap.put("token", generateJwtToken(username, role));
     
             HttpStatus status = HttpStatus.ACCEPTED;
@@ -82,16 +82,17 @@ public class AuthController {
     }
 
     @PostMapping("/register/customer")
-    public ResponseEntity<?> registerCustomer(@RequestBody Customer customer, @RequestParam("confirmationPassword") String passwordConfirmation) {
-        return register(customer, passwordConfirmation);
+    public ResponseEntity<?> registerCustomer(@RequestBody RegistrationRequest<Customer> request) {
+        return register(request.getUser(), request.getPasswordConfirmation());
     }
 
     @PostMapping("/register/admin")
-    public ResponseEntity<?> registerAdmin(@RequestBody Admin admin, @RequestParam("confirmationPassword") String passwordConfirmation) {
-        return register(admin, passwordConfirmation);
+    public ResponseEntity<?> registerAdmin(@RequestBody RegistrationRequest<Admin> request) {
+        System.out.println(request.getUser());
+        return register(request.getUser(), request.getPasswordConfirmation());
     }
 
-    private <T extends AbstractUser> ResponseEntity<?> register(T user, String passwordConfirmation) {
+    public <T extends AbstractUser> ResponseEntity<?> register(T user, String passwordConfirmation) {
         Map<String, Object> response = new HashMap<>();
         if (!validateUser(user, passwordConfirmation, response)) {
             return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.UNAUTHORIZED, response);
@@ -102,12 +103,12 @@ public class AuthController {
     }
     
     private <T extends AbstractUser> boolean validateUser(T user, String passwordConfirmation,  Map<String, Object> response) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(AuthProvider.getInstance().encode(user.getPassword()));
         if (!user.isValid()) {
             response.put("message", "Field " + user.getRole().toLowerCase() + " tidak valid");
             return false;
         }
-        if (!passwordEncoder.matches(passwordConfirmation, user.getPassword())) {
+        if (!AuthProvider.getInstance().matches(passwordConfirmation, user.getPassword())) {
             response.put("message", "Konfirmasi password tidak sesuai");
             return false;
         }

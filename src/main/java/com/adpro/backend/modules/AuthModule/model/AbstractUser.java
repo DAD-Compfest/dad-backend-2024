@@ -30,6 +30,7 @@ public abstract class AbstractUser {
     public AbstractUser() {
 
     }
+    
 
     public boolean isValid(){
         return isNotNullOrEmpty(getUsername()) &&

@@ -3,6 +3,7 @@ package com.adpro.backend.modules.authmodule.service;
 import java.util.List;
 
 import com.adpro.backend.modules.authmodule.model.AbstractUser;
+import com.adpro.backend.modules.authmodule.provider.AuthProvider;
 import com.adpro.backend.modules.authmodule.provider.JwtProvider;
 import com.adpro.backend.modules.authmodule.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,7 @@ public class UserServiceImpl<T extends AbstractUser> extends UserService<T>{
         T user = userRepository.findByUsername(username);
         verifyUserNotNull(user);
         verifyUserExists(user.getUsername());
-        return user.authenticate(password);
+        return AuthProvider.getInstance().matches(password, user.getPassword());
     }
 
     @Override
