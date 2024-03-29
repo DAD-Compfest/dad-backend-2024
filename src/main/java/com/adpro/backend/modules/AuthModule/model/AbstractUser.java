@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import java.util.regex.Pattern;
 
+import com.adpro.backend.modules.authmodule.provider.AuthProvider;
+
 @Getter
 @Setter
 @Entity
@@ -22,7 +24,7 @@ public abstract class AbstractUser {
 
     public AbstractUser(String username, String password, String email, String role){
         this.username = username;
-        this.password = password;
+        setPassword(password);
         this.email = email;
         this.role = role;
     }
@@ -30,7 +32,10 @@ public abstract class AbstractUser {
     public AbstractUser() {
 
     }
-    
+
+    public void setPassword(String password){
+        this.password = AuthProvider.getInstance().encode(password);
+    }
 
     public boolean isValid(){
         return isNotNullOrEmpty(getUsername()) &&

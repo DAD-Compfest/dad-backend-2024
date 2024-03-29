@@ -103,7 +103,7 @@ public class AuthController {
     }
     
     private <T extends AbstractUser> boolean validateUser(T user, String passwordConfirmation,  Map<String, Object> response) {
-        user.setPassword(AuthProvider.getInstance().encode(user.getPassword()));
+        user.setPassword(user.getPassword());
         if (!user.isValid()) {
             response.put("message", "Field " + user.getRole().toLowerCase() + " tidak valid");
             return false;
