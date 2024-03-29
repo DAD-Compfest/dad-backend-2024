@@ -21,6 +21,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import java.io.IOException;
+
+import com.adpro.backend.modules.authmodule.controller.AuthController;
 import com.adpro.backend.modules.authmodule.enums.UserType;
 import com.adpro.backend.modules.authmodule.model.Admin;
 import  com.adpro.backend.modules.authmodule.model.Customer;

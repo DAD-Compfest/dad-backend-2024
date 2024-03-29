@@ -1,7 +1,6 @@
 package com.adpro.backend.modules.authmodule.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +17,7 @@ public abstract class AbstractUser {
     private String username;
     private String password;
     private String email;
-    @Setter(AccessLevel.PRIVATE)
+
     private String role;
 
     public AbstractUser(String username, String password, String email, String role){
