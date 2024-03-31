@@ -28,6 +28,7 @@ extra["springModulithVersion"] = "1.1.2"
 
 dependencies {
 	implementation("org.yaml:snakeyaml:1.29")
+	implementation("org.springframework.boot:spring-boot-starter-mail")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("com.github.javafaker:javafaker:1.0.2")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -65,13 +66,7 @@ dependencies {
 jacoco {
 }
 
-sonar {
-  properties {
-    property("sonar.projectKey", "Adpro-C4_backend")
-    property("sonar.organization", "adpro-c4")
-    property("sonar.host.url", "https://sonarcloud.io")
-  }
-}
+
 
 dependencyManagement {
 	imports {
