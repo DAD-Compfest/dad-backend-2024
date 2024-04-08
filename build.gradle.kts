@@ -1,6 +1,6 @@
 plugins {
 	java
-	id("org.springframework.boot") version "3.2.3"
+	id("org.springframework.boot") version "3.2.4"
 	id("io.spring.dependency-management") version "1.1.4"
 	id("jacoco")
 	id("org.sonarqube") version "4.4.1.3373"
@@ -11,7 +11,7 @@ group = "com.adpro"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
 }
 
 configurations {
@@ -28,6 +28,9 @@ extra["springModulithVersion"] = "1.1.2"
 
 dependencies {
 	implementation("org.yaml:snakeyaml:1.29")
+	implementation ("org.apache.logging.log4j:log4j-slf4j-impl:2.14.1")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("com.github.javafaker:javafaker:1.0.2")

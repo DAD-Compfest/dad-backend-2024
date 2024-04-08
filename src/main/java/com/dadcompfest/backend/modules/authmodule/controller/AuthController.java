@@ -4,39 +4,58 @@ import com.dadcompfest.backend.modules.authmodule.model.Admin;
 import com.dadcompfest.backend.modules.authmodule.model.RegistrationRequestPOJO;
 import com.dadcompfest.backend.modules.authmodule.model.Team;
 import com.dadcompfest.backend.modules.authmodule.provider.AuthProvider;
+import com.dadcompfest.backend.modules.authmodule.provider.EmailAuthenticationProvider;
 import com.dadcompfest.backend.modules.authmodule.provider.JwtProvider;
-import com.dadcompfest.backend.modules.authmodule.provider.EmailTokenProvider;
+import com.dadcompfest.backend.modules.common.middleware.RedisTeamSignInMiddleware;
+import com.dadcompfest.backend.modules.common.provider.RedisProvider;
 import com.dadcompfest.backend.modules.authmodule.service.EmailService;
 import com.dadcompfest.backend.modules.authmodule.service.UserService;
-import com.dadcompfest.backend.modules.commonmodule.util.ResponseHandler;
+import com.dadcompfest.backend.modules.common.util.AuthResponseUtil;
+import com.dadcompfest.backend.modules.common.util.ResponseHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.MessagingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     
     @Autowired
     private UserService<Team> teamService;
+
+    @Autowired
+    private  RedisTeamSignInMiddleware signInMiddleware;
 
     @Autowired 
     UserService<Admin> adminService;
 
     @Autowired
     EmailService emailService;
+
+    @Autowired
+    private ExecutorService virtualExecutor;
+
+    private static final Logger logger = LogManager.getLogger(AuthController.class);
+
+    @Autowired
+    private  JwtProvider jwtProvider;
+    @Autowired private EmailAuthenticationProvider emailAuthenticationProvider;
+
+    @Autowired private RedisProvider redisProvider;
 
     AuthController(){
     }
@@ -49,9 +68,14 @@ public class AuthController {
     @PostMapping("/login/team")
     public CompletableFuture<ResponseEntity<Object>> postLoginTeam(@RequestBody JsonNode requestBody) {
         return CompletableFuture.supplyAsync(() -> {
-            return loginTeam(requestBody);
-        }, threadPoolTaskExecutor);
+            try {
+                return loginTeam(requestBody);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }, virtualExecutor);
     }
+
     @PostMapping("/email/create-email-verification")
     public  CompletableFuture<ResponseEntity<Object>> postUpdateEmailToken(@RequestBody JsonNode requestBody){
         return  CompletableFuture.supplyAsync(()->{
@@ -59,7 +83,7 @@ public class AuthController {
             String subject = requestBody.get("subject").asText();
             String content = requestBody.get("content").asText();
             String successMessage = requestBody.get("successMessage").asText();
-            String token = EmailTokenProvider.getInstance().generateToken(email);
+            String token = emailAuthenticationProvider.createEmailAuthenticationToken(email);
             try {
                 emailService.sendEmailVerification(email, token,
                         content,
@@ -70,7 +94,7 @@ public class AuthController {
             Map<String,Object> data = new HashMap<>();
             data.put("message", successMessage );
             return  ResponseHandler.generateResponse((String) data.get("message"), HttpStatus.ACCEPTED, data);
-        }, threadPoolTaskExecutor);
+        }, virtualExecutor);
     }
 
     @PostMapping("/change-password/admin")
@@ -83,10 +107,10 @@ public class AuthController {
                 return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.UNAUTHORIZED, response);
             }
             adminService.createOrUpdate(request.getUser());
-            EmailTokenProvider.getInstance().removeToken(request.getUser().getEmail());// remove token after register success
+            redisProvider.revoke(redisProvider.wrapperEmailTokenKey(request.getUser().getEmail()));
             return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.ACCEPTED, response);
 
-        }, threadPoolTaskExecutor);
+        }, virtualExecutor);
     }
 
     @PostMapping("/change-password/team")
@@ -98,9 +122,9 @@ public class AuthController {
                 return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.UNAUTHORIZED, response);
             }
             teamService.createOrUpdate(request.getUser());
-            EmailTokenProvider.getInstance().removeToken(request.getUser().getTeamEmail());// remove token after register success
+            redisProvider.revoke(redisProvider.wrapperEmailTokenKey(request.getUser().getTeamEmail()));
             return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.ACCEPTED, response);
-        }, threadPoolTaskExecutor);
+        }, virtualExecutor);
     }
 
     @PostMapping("/email/verify")
@@ -109,49 +133,56 @@ public class AuthController {
             String email = requestBody.get("email").asText();
             String token = requestBody.get("token").asText();
             Map<String,Object> data = new HashMap<>();
-            data.put("isVerified", EmailTokenProvider.getInstance().verifyToken(email, token));
+            data.put("isVerified", emailAuthenticationProvider.verifyToken(email, token));
             data.put("message", "Server telah memverifikasi token apakah sesuai atau tidak" );
             return  ResponseHandler.generateResponse((String) data.get("message"), HttpStatus.ACCEPTED, data);
-        }, threadPoolTaskExecutor);
+        }, virtualExecutor);
     }
 
-
-    private ResponseEntity<Object> loginTeam(JsonNode requestBody){
+    protected ResponseEntity<Object> loginTeam(JsonNode requestBody) throws JsonProcessingException {
         String username = requestBody.get("username").asText();
         String password = requestBody.get("password").asText();
-        return generateTeamLoginResponse(teamService.authenticateAndGet(username, password));
+        return signInMiddleware.handleAuthTeam(username, password, ()->
+        { logger.info("cache is empty"); return loginTeamViaDB(username, password);
+        });
+
+    }
+    private ResponseEntity<Object> loginTeamViaDB(String username, String password){
+        try{
+            Team team = teamService.authenticateAndGet(username, password);
+            redisProvider.getRedisTemplate().opsForValue()
+                    .set(redisProvider.wrapperTeamGetData(team.getTeamUsername()),
+                            redisProvider.getObjectMapper().writeValueAsString(team));
+            return generateTeamLoginResponse(team);
+        }
+        catch (Exception err){
+            Map<String, Object> errMap = new HashMap<>();
+            errMap.put("message", "Kesalahan di server");
+            return  ResponseHandler.generateResponse("Kesalahan di server",
+                    HttpStatus.INTERNAL_SERVER_ERROR, errMap);
+        }
     }
 
     private ResponseEntity<Object> loginAdmin(JsonNode requestBody){
         String username = requestBody.get("username").asText();
         String password = requestBody.get("password").asText();
-        Admin admin = adminService.authenticateAndGet(username, password);
-        return generateAdminLoginResponse(admin);
+        try{
+            return generateAdminLoginResponse(adminService.authenticateAndGet(username, password));
+        }
+        catch (Exception err){
+            Map<String, Object> errMap = new HashMap<>();
+            errMap.put("message", "Kesalahan di server");
+            return  ResponseHandler.generateResponse("Kesalahan di server",
+                    HttpStatus.INTERNAL_SERVER_ERROR, errMap);
+        }
     }
 
-    private ResponseEntity<Object> generateTeamLoginResponse(Team team){
-        if(team == null){
-            return ResponseHandler.generateResponse("Maaf username atau password tidak sesuai", 
-            HttpStatus.UNAUTHORIZED, new HashMap<>());
-        }
-        Map<String, Object> data = new HashMap<>();
-        Object teamData = team;
-        data.put("team", teamData);
-        data.put("teamToken", JwtProvider.getInstance().createJwtToken(team.getTeamUsername()));
-        return ResponseHandler.generateResponse("Login sebagai Tim berhasil", HttpStatus.ACCEPTED, data);
+    protected  ResponseEntity<Object> generateTeamLoginResponse(Team team) throws JsonProcessingException {
+        return AuthResponseUtil.generateTeamLoginResponse(team, jwtProvider);
     }
 
-    private ResponseEntity<Object> generateAdminLoginResponse(Admin admin){
-        if(admin == null){
-            return ResponseHandler.generateResponse("Maaf username atau password tidak sesuai", 
-            HttpStatus.UNAUTHORIZED, new HashMap<>());
-        }
-        Map<String, Object> data = new HashMap<>();
-        Object adminData = admin;
-        data.put("admin", adminData);
-        data.put("adminToken", JwtProvider.getInstance().createJwtToken(admin.getUsername()));
-
-        return ResponseHandler.generateResponse("Login sebagai Admin berhasil", HttpStatus.ACCEPTED, data);
+    private ResponseEntity<Object> generateAdminLoginResponse(Admin admin) throws JsonProcessingException {
+        return AuthResponseUtil.generateAdminLoginResponse(admin, jwtProvider);
     }
 
     @PostMapping("/register/admin")
@@ -160,7 +191,9 @@ public class AuthController {
     }
     @PostMapping("/register/team")
     public ResponseEntity<?> postRegisterTeam(@RequestBody RegistrationRequestPOJO<Team> request) {
-        return registerTeam(request.getUser(), request.getPasswordConfirmation());
+        Team team = request.getUser();
+        team.setRawPassword(AuthProvider.getInstance().encode(team.getPassword()));
+        return registerTeam(team, request.getPasswordConfirmation());
     }
 
     public ResponseEntity<?> registerAdmin(Admin admin, String passwordConfirmation){
@@ -169,7 +202,7 @@ public class AuthController {
             return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.UNAUTHORIZED, response);
         }
         adminService.create(admin);
-        EmailTokenProvider.getInstance().removeToken(admin.getEmail());// remove token after register success
+        redisProvider.revoke(redisProvider.wrapperEmailTokenKey(admin.getEmail()));
         return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.ACCEPTED, response);
     }
 
@@ -179,7 +212,7 @@ public class AuthController {
             return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.UNAUTHORIZED, response);
         }
         teamService.create(team);
-        EmailTokenProvider.getInstance().removeToken(team.getTeamEmail());// remove token after register success
+        redisProvider.revoke(redisProvider.wrapperEmailTokenKey(team.getTeamEmail()));
         return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.ACCEPTED, response);
 
     }
@@ -189,7 +222,7 @@ public class AuthController {
             response.put("message", "Konfirmasi password tidak sesuai");
             return false;
         }
-        if(!EmailTokenProvider.getInstance().isVerified(team.getTeamEmail())){
+        if(!emailAuthenticationProvider.isEmailVerified(team.getTeamEmail())){
             response.put("message", "Email belum diverifikasi");
             return  false;
         }
@@ -202,7 +235,7 @@ public class AuthController {
             response.put("message", "Konfirmasi password tidak sesuai");
             return false;
         }
-        if(!EmailTokenProvider.getInstance().isVerified(admin.getEmail())){
+        if(!emailAuthenticationProvider.isEmailVerified(admin.getEmail())){
             response.put("message", "Email belum diverifikasi");
             return false;
         }
@@ -224,7 +257,7 @@ public class AuthController {
             response.put("message", "Token tidak ditemukan.");
             response.put("status", HttpStatus.BAD_REQUEST);
         } else {
-            JwtProvider.getInstance().revokeJwtToken(token);
+            redisProvider.revoke(token);
             response.put("message", "Berhasil logout");
             response.put("status", HttpStatus.ACCEPTED);
         }

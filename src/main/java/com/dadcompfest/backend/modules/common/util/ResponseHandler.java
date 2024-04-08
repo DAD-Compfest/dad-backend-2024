@@ -1,4 +1,4 @@
-package com.dadcompfest.backend.modules.commonmodule.util;
+package com.dadcompfest.backend.modules.common.util;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

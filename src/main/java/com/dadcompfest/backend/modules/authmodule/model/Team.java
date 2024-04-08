@@ -1,13 +1,12 @@
 package com.dadcompfest.backend.modules.authmodule.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+
 import java.util.List;
 
 import com.dadcompfest.backend.modules.authmodule.provider.AuthProvider;
@@ -33,28 +32,37 @@ public class Team{
     private String teamEmail;
 
     private String password;
-    
-    private String teamMembers;
+
+    @Column(name = "team_members")
+    @Convert(converter = StringToListConverter.class)
+    private List<String> teamMembers;
 
     public Team(){}
 
     public void setPassword(String password){
         this.password = AuthProvider.getInstance().encode(password);
     }
+    @JsonSetter("password")
     public  void setRawPassword(String password){
         this.password = password;
     }
 
-  
-    public List<String> getTeamMembersList() {
-        if (teamMembers == null || teamMembers.isEmpty()) {
-            return new ArrayList<>();
+
+    @Converter
+    static class StringToListConverter implements AttributeConverter<List<String>, String> {
+
+        @Override
+        public String convertToDatabaseColumn(List<String> list) {
+            if(list == null) return "";
+            return String.join(",", list);
         }
-        return Arrays.asList(teamMembers.split(","));
+
+        @Override
+        public List<String> convertToEntityAttribute(String joined) {
+            if(joined == null) return new ArrayList<>();
+            return new ArrayList<>(Arrays.asList(joined.split(",")));
+        }
     }
 
-    public void setTeamMembers(List<String> teamMembers) {
-        this.teamMembers = String.join(",", teamMembers);
-    }
 }
 
