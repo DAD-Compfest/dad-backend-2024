@@ -11,7 +11,7 @@ group = "com.adpro"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_17
 }
 
 configurations {
@@ -27,7 +27,7 @@ repositories {
 extra["springModulithVersion"] = "1.1.2"
 
 dependencies {
-	implementation("org.yaml:snakeyaml:1.29")
+	implementation("org.yaml:snakeyaml:2.2")
 	implementation ("org.apache.logging.log4j:log4j-slf4j-impl:2.14.1")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
