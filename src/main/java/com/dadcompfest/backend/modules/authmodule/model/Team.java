@@ -1,5 +1,6 @@
 package com.dadcompfest.backend.modules.authmodule.model;
 
+import com.dadcompfest.backend.modules.submissionmodule.model.Contest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -24,6 +25,7 @@ public class Team{
     private Long teamId;
 
     private String teamName;
+
     
     @Column(unique = true, name = "team_username")
     private String teamUsername;
