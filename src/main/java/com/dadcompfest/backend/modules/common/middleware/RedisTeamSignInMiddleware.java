@@ -35,7 +35,7 @@ public class RedisTeamSignInMiddleware {
     @Autowired
     private JwtProvider jwtProvider;
 
-    public ResponseEntity<Object> handleAuthTeam(String username, String password, Supplier<ResponseEntity<Object>> onFailure) throws JsonProcessingException {
+    public ResponseEntity<Object> handleAuthTeam(String username, String password, HttpServletResponse response, Supplier<ResponseEntity<Object>> onFailure) throws JsonProcessingException {
         String teamString = redisProvider.get(redisProvider.wrapperTeamGetData(username));
         if(teamString != null){
             Team team = redisProvider.getObjectMapper().readValue(teamString, Team.class);
@@ -44,7 +44,7 @@ public class RedisTeamSignInMiddleware {
             if(!AuthProvider.getInstance().matches(password, team.getPassword())) {
                 team = null;
             }
-            return AuthResponseUtil.generateTeamLoginResponse(team, jwtProvider);
+            return AuthResponseUtil.generateTeamLoginResponse(team, jwtProvider, response);
         }
         return onFailure.get();
     }
