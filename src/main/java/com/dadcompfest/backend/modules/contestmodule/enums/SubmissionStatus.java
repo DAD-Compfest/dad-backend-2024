@@ -1,4 +1,4 @@
-package com.dadcompfest.backend.modules.submissionmodule.enums;
+package com.dadcompfest.backend.modules.contestmodule.enums;
 
 public enum SubmissionStatus {
     TRUE("TRUE"),

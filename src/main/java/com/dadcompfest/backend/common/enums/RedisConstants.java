@@ -9,7 +9,8 @@ public enum RedisConstants {
     TEAM("team:"),
     ADMIN("admin:"),
     EMAIL("email:"),
-    DATA("data:");
+    DATA("data:"),
+    CONTEST("contest:");
 
 
 

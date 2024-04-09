@@ -7,7 +7,7 @@ import com.dadcompfest.backend.modules.authmodule.provider.AuthProvider;
 import com.dadcompfest.backend.modules.authmodule.provider.EmailAuthenticationProvider;
 import com.dadcompfest.backend.modules.authmodule.provider.JwtProvider;
 import com.dadcompfest.backend.common.middleware.RedisTeamSignInMiddleware;
-import com.dadcompfest.backend.common.provider.RedisSessionProvider;
+import com.dadcompfest.backend.common.provider.RedisProvider;
 import com.dadcompfest.backend.modules.authmodule.service.EmailService;
 import com.dadcompfest.backend.modules.authmodule.service.UserService;
 import com.dadcompfest.backend.common.util.AuthResponseUtil;
@@ -55,7 +55,7 @@ public class AuthController {
     private  JwtProvider jwtProvider;
     @Autowired private EmailAuthenticationProvider emailAuthenticationProvider;
 
-    @Autowired private RedisSessionProvider redisProvider;
+    @Autowired private RedisProvider redisProvider;
 
     AuthController(){
     }

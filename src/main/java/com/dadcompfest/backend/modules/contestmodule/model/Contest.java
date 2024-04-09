@@ -1,4 +1,4 @@
-package com.dadcompfest.backend.modules.submissionmodule.model;
+package com.dadcompfest.backend.modules.contestmodule.model;
 
 
 import com.dadcompfest.backend.modules.authmodule.model.Team;
@@ -7,16 +7,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
 @Setter
 public class Contest implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "contest_id")
-    private Long contestId;
+    private String contestId;
 
     private String contestName;
     private String description;
@@ -30,7 +29,9 @@ public class Contest implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "team_username", referencedColumnName = "team_username"),
             uniqueConstraints = {@UniqueConstraint(columnNames = {"contest_id", "team_username"})}
     )
-    private List<Team> teams;
+    @MapKeyJoinColumn(name = "team_username")
+    private Map<String, Team> teams;
 }
+
 
 

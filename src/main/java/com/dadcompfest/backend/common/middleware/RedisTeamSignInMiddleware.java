@@ -3,7 +3,7 @@ package com.dadcompfest.backend.common.middleware;
 import com.dadcompfest.backend.modules.authmodule.model.Team;
 import com.dadcompfest.backend.modules.authmodule.provider.AuthProvider;
 import com.dadcompfest.backend.modules.authmodule.provider.JwtProvider;
-import com.dadcompfest.backend.common.provider.RedisSessionProvider;
+import com.dadcompfest.backend.common.provider.RedisProvider;
 import com.dadcompfest.backend.common.util.AuthResponseUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 public class RedisTeamSignInMiddleware {
 
     @Autowired
-    private RedisSessionProvider redisProvider;
+    private RedisProvider redisProvider;
 
     @Autowired
     private JwtProvider jwtProvider;

@@ -1,8 +1,5 @@
 package com.dadcompfest.backend.modules.authmodule.model;
 
-import com.dadcompfest.backend.modules.submissionmodule.model.Contest;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.*;
 import lombok.Getter;

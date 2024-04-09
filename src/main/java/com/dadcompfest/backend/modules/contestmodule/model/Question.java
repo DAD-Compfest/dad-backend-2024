@@ -1,4 +1,4 @@
-package com.dadcompfest.backend.modules.submissionmodule.model;
+package com.dadcompfest.backend.modules.contestmodule.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

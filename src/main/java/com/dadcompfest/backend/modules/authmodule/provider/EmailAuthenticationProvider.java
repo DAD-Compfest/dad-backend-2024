@@ -1,7 +1,7 @@
 package com.dadcompfest.backend.modules.authmodule.provider;
 
 import com.dadcompfest.backend.modules.authmodule.model.EmailVerificationPOJO;
-import com.dadcompfest.backend.common.provider.RedisSessionProvider;
+import com.dadcompfest.backend.common.provider.RedisProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class EmailAuthenticationProvider {
     @Autowired
-    RedisSessionProvider redisProvider;
+    RedisProvider redisProvider;
 
     public String createEmailAuthenticationToken(String email) {
         String token = UUID.randomUUID().toString().substring(0, 6);
@@ -21,7 +21,7 @@ public class EmailAuthenticationProvider {
             redisProvider.getRedisTemplate().opsForValue().set(key,
                     redisProvider.getObjectMapper().writeValueAsString
                             (new EmailVerificationPOJO(token)),
-                    RedisSessionProvider.getEmailExpirationTimeMs(), TimeUnit.MILLISECONDS);
+                    RedisProvider.getEmailExpirationTimeMs(), TimeUnit.MILLISECONDS);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -68,7 +68,7 @@ public class EmailAuthenticationProvider {
                 verificationObject.setAuthenticated(true);
                 redisProvider.getRedisTemplate().opsForValue().set(key,
                         redisProvider.getObjectMapper().writeValueAsString(verificationObject),
-                        RedisSessionProvider.getEmailExpirationTimeMs(), TimeUnit.MILLISECONDS);
+                        RedisProvider.getEmailExpirationTimeMs(), TimeUnit.MILLISECONDS);
                 return true;
             }
             return false;

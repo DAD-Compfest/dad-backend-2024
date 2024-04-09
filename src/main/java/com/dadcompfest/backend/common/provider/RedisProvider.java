@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 @Component
-public class RedisSessionProvider {
+public class RedisProvider {
 
     private static final long EXPIRATION_TIME_MS = 60 * 60 * 1000;
     private  static  final  long EMAIL_EXPIRATION_TIME_MS = 5 * 60 * 1000;
@@ -20,9 +20,11 @@ public class RedisSessionProvider {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
+
+
     private final ObjectMapper objectMapper;
 
-    public RedisSessionProvider() {
+    public RedisProvider() {
         objectMapper = new ObjectMapper();
     }
 
