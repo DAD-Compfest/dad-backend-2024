@@ -2,7 +2,7 @@ package com.dadcompfest.backend.modules.authmodule.service;
 
 import java.util.List;
 
-import com.dadcompfest.backend.modules.common.provider.RedisProvider;
+import com.dadcompfest.backend.common.provider.RedisSessionProvider;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ public class TeamServiceImpl extends UserService<Team>{
     @Autowired
     TeamRepository teamRepository;
     @Autowired
-    RedisProvider redisProvider;
+    RedisSessionProvider redisProvider;
 
     @Override
     public Team findByUsername(String username) {

@@ -1,6 +1,6 @@
-package com.dadcompfest.backend.modules.common.provider;
+package com.dadcompfest.backend.common.provider;
 
-import com.dadcompfest.backend.modules.common.enums.RedisConstants;
+import com.dadcompfest.backend.common.enums.RedisConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Getter;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 @Component
-public class RedisProvider {
+public class RedisSessionProvider {
 
     private static final long EXPIRATION_TIME_MS = 60 * 60 * 1000;
     private  static  final  long EMAIL_EXPIRATION_TIME_MS = 5 * 60 * 1000;
@@ -22,7 +22,7 @@ public class RedisProvider {
 
     private final ObjectMapper objectMapper;
 
-    public RedisProvider() {
+    public RedisSessionProvider() {
         objectMapper = new ObjectMapper();
     }
 

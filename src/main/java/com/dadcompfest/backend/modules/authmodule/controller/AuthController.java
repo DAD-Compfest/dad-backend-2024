@@ -6,12 +6,12 @@ import com.dadcompfest.backend.modules.authmodule.model.Team;
 import com.dadcompfest.backend.modules.authmodule.provider.AuthProvider;
 import com.dadcompfest.backend.modules.authmodule.provider.EmailAuthenticationProvider;
 import com.dadcompfest.backend.modules.authmodule.provider.JwtProvider;
-import com.dadcompfest.backend.modules.common.middleware.RedisTeamSignInMiddleware;
-import com.dadcompfest.backend.modules.common.provider.RedisProvider;
+import com.dadcompfest.backend.common.middleware.RedisTeamSignInMiddleware;
+import com.dadcompfest.backend.common.provider.RedisSessionProvider;
 import com.dadcompfest.backend.modules.authmodule.service.EmailService;
 import com.dadcompfest.backend.modules.authmodule.service.UserService;
-import com.dadcompfest.backend.modules.common.util.AuthResponseUtil;
-import com.dadcompfest.backend.modules.common.util.ResponseHandler;
+import com.dadcompfest.backend.common.util.AuthResponseUtil;
+import com.dadcompfest.backend.common.util.ResponseHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.MessagingException;
@@ -20,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -55,7 +54,7 @@ public class AuthController {
     private  JwtProvider jwtProvider;
     @Autowired private EmailAuthenticationProvider emailAuthenticationProvider;
 
-    @Autowired private RedisProvider redisProvider;
+    @Autowired private RedisSessionProvider redisProvider;
 
     AuthController(){
     }

@@ -1,4 +1,4 @@
-package com.dadcompfest.backend.modules.common.config;
+package com.dadcompfest.backend.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

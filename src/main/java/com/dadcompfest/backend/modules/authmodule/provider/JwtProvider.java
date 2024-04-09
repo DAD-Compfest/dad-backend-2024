@@ -3,7 +3,7 @@ package com.dadcompfest.backend.modules.authmodule.provider;
 
 import com.dadcompfest.backend.modules.authmodule.model.Admin;
 import com.dadcompfest.backend.modules.authmodule.model.Team;
-import com.dadcompfest.backend.modules.common.provider.RedisProvider;
+import com.dadcompfest.backend.common.provider.RedisSessionProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class JwtProvider {
 
     @Autowired
-    private RedisProvider redisProvider;
+    private RedisSessionProvider redisProvider;
     private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     String createJwtToken(String subject){
         Claims claims = Jwts.claims();
@@ -34,7 +34,7 @@ public class JwtProvider {
         String token = createJwtToken(team.getTeamUsername());
         String teamJson = redisProvider.getObjectMapper().writeValueAsString(team);
         String key = redisProvider.wrapperTeamAuthKey(token);
-        redisProvider.getRedisTemplate().opsForValue().set(key, teamJson, RedisProvider.getExpirationTimeMs(), TimeUnit.MILLISECONDS);
+        redisProvider.getRedisTemplate().opsForValue().set(key, teamJson, RedisSessionProvider.getExpirationTimeMs(), TimeUnit.MILLISECONDS);
         return key;
     }
 
@@ -42,7 +42,7 @@ public class JwtProvider {
         String token = createJwtToken(admin.getUsername());
         String adminJson = redisProvider.getObjectMapper().writeValueAsString(admin);
         String key = redisProvider.wrapperAdminAuthKey(token);
-        redisProvider.getRedisTemplate().opsForValue().set(key, adminJson,  RedisProvider.getExpirationTimeMs(), TimeUnit.MILLISECONDS);
+        redisProvider.getRedisTemplate().opsForValue().set(key, adminJson,  RedisSessionProvider.getExpirationTimeMs(), TimeUnit.MILLISECONDS);
         return key;
     }
 

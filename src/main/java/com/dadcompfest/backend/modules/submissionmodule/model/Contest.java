@@ -27,7 +27,8 @@ public class Contest implements Serializable {
     @JoinTable(
             name = "contest_team",
             joinColumns = @JoinColumn(name = "contest_id"),
-            inverseJoinColumns = @JoinColumn(name = "team_username", referencedColumnName = "team_username")
+            inverseJoinColumns = @JoinColumn(name = "team_username", referencedColumnName = "team_username"),
+            uniqueConstraints = {@UniqueConstraint(columnNames = {"contest_id", "team_username"})}
     )
     private List<Team> teams;
 }

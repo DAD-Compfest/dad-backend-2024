@@ -1,4 +1,4 @@
-package com.dadcompfest.backend.modules.common.enums;
+package com.dadcompfest.backend.common.enums;
 
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package com.dadcompfest.backend.modules.common.util;
+package com.dadcompfest.backend.common.util;
 
 import com.dadcompfest.backend.modules.authmodule.model.Admin;
 import com.dadcompfest.backend.modules.authmodule.model.Team;

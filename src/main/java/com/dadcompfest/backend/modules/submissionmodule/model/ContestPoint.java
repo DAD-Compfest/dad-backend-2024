@@ -10,6 +10,7 @@ import java.io.Serializable;
 @Entity
 @Getter
 @Setter
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"team_username", "contest_id"}))
 public class ContestPoint implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
