@@ -6,6 +6,7 @@ import com.dadcompfest.backend.modules.authmodule.provider.JwtProvider;
 import com.dadcompfest.backend.common.provider.RedisSessionProvider;
 import com.dadcompfest.backend.common.util.AuthResponseUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
