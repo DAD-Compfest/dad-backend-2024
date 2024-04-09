@@ -244,9 +244,10 @@ public class AuthController {
 
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<?> logout(@CookieValue(value = "jwt", required = false) String token, HttpServletResponse servletResponse) {
         Map<String, Object> response = new HashMap<>();
         generateLogoutResponse(token, response);
+        servletResponse.addHeader("Set-Cookie", "jwt=; HttpOnly; SameSite=Lax; Max-Age=0");
         return ResponseHandler.generateResponse((String) response.get("message"),
                 (HttpStatus) response.get("status"), response);
     }
