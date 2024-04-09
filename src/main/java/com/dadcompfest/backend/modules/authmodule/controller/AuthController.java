@@ -15,6 +15,7 @@ import com.dadcompfest.backend.modules.common.util.ResponseHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,15 +62,15 @@ public class AuthController {
     }
 
     @PostMapping("/login/admin")
-    public ResponseEntity<Object> postLoginAdmin(@RequestBody JsonNode requestBody) {
-        return loginAdmin(requestBody);
+    public ResponseEntity<Object> postLoginAdmin(@RequestBody JsonNode requestBody, HttpServletResponse response) {
+        return loginAdmin(requestBody, response);
     }
 
     @PostMapping("/login/team")
-    public CompletableFuture<ResponseEntity<Object>> postLoginTeam(@RequestBody JsonNode requestBody) {
+    public CompletableFuture<ResponseEntity<Object>> postLoginTeam(@RequestBody JsonNode requestBody, HttpServletResponse response) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return loginTeam(requestBody);
+                return loginTeam(requestBody, response);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -139,21 +140,20 @@ public class AuthController {
         }, virtualExecutor);
     }
 
-    protected ResponseEntity<Object> loginTeam(JsonNode requestBody) throws JsonProcessingException {
+    protected ResponseEntity<Object> loginTeam(JsonNode requestBody, HttpServletResponse response) throws JsonProcessingException {
         String username = requestBody.get("username").asText();
         String password = requestBody.get("password").asText();
-        return signInMiddleware.handleAuthTeam(username, password, ()->
-        { logger.info("cache is empty"); return loginTeamViaDB(username, password);
-        });
-
+        return signInMiddleware.handleAuthTeam(username, password, response,()->
+        { logger.info("cache is empty"); return loginTeamViaDB(username, password, response);});
     }
-    private ResponseEntity<Object> loginTeamViaDB(String username, String password){
+
+    private ResponseEntity<Object> loginTeamViaDB(String username, String password, HttpServletResponse response){
         try{
             Team team = teamService.authenticateAndGet(username, password);
             redisProvider.getRedisTemplate().opsForValue()
                     .set(redisProvider.wrapperTeamGetData(team.getTeamUsername()),
                             redisProvider.getObjectMapper().writeValueAsString(team));
-            return generateTeamLoginResponse(team);
+            return generateTeamLoginResponse(team, response);
         }
         catch (Exception err){
             Map<String, Object> errMap = new HashMap<>();
@@ -163,11 +163,11 @@ public class AuthController {
         }
     }
 
-    private ResponseEntity<Object> loginAdmin(JsonNode requestBody){
+    private ResponseEntity<Object> loginAdmin(JsonNode requestBody, HttpServletResponse response){
         String username = requestBody.get("username").asText();
         String password = requestBody.get("password").asText();
         try{
-            return generateAdminLoginResponse(adminService.authenticateAndGet(username, password));
+            return generateAdminLoginResponse(adminService.authenticateAndGet(username, password), response);
         }
         catch (Exception err){
             Map<String, Object> errMap = new HashMap<>();
@@ -177,12 +177,12 @@ public class AuthController {
         }
     }
 
-    protected  ResponseEntity<Object> generateTeamLoginResponse(Team team) throws JsonProcessingException {
-        return AuthResponseUtil.generateTeamLoginResponse(team, jwtProvider);
+    protected  ResponseEntity<Object> generateTeamLoginResponse(Team team, HttpServletResponse response) throws JsonProcessingException {
+        return AuthResponseUtil.generateTeamLoginResponse(team, jwtProvider, response);
     }
 
-    private ResponseEntity<Object> generateAdminLoginResponse(Admin admin) throws JsonProcessingException {
-        return AuthResponseUtil.generateAdminLoginResponse(admin, jwtProvider);
+    private ResponseEntity<Object> generateAdminLoginResponse(Admin admin, HttpServletResponse response) throws JsonProcessingException {
+        return AuthResponseUtil.generateAdminLoginResponse(admin, jwtProvider, response);
     }
 
     @PostMapping("/register/admin")
