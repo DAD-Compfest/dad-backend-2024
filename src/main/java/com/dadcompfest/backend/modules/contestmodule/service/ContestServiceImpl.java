@@ -28,7 +28,7 @@ public class ContestServiceImpl implements ContestService{
     @Override
     public Contest joinContest(String contestId, Team team) {
         Contest contest = getContestById(contestId);
-        contest.getTeams().put(team.getTeamUsername(), team);
+        contest.getTeams().put(contestId, team);
         RedisContest redisContest = new RedisContest(contest);
         redisContestRepository.save(redisContest);
         return contest;

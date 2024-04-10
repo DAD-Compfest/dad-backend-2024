@@ -38,7 +38,7 @@ public class ContestBuilder {
         return this;
     }
 
-    public ContestBuilder setTeams(Map<String, Team> teams) {
+    public ContestBuilder setTeams(Map<String,Team> teams) {
         this.teams = teams;
         return this;
     }

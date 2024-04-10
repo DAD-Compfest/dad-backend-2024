@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.javafaker.Faker;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -33,10 +34,14 @@ public class ContestController {
 
     @GetMapping("/seed/seed-join-contest")
     public  String seedTeam(){
-        List<RedisContest> redisContestList = redisContestRepository.findAll();
+        Iterable<RedisContest> redisContestIterable = redisContestRepository.findAll();
+        List<RedisContest> redisContestList = new ArrayList<>();
+        redisContestIterable.forEach(redisContestList::add);
+
         for(RedisContest contest : redisContestList){
-            for (int i = 0; i < 200; i++){
+            for (int i = 0; i < 20; i++){
                 Team team = new Team();
+
                 team.setTeamUsername(UUID.randomUUID().toString());
                 contestService.joinContest(contest.getContestId(), team);
             }
@@ -48,22 +53,18 @@ public class ContestController {
         Faker faker = new Faker();
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 1; i++) {
             Contest contest = new Contest();
             contest.setContestId(UUID.randomUUID().toString());
             contest.setContestName("TEST-CONTEST-" + faker.company().name() + i);
             contest.setTeams(new HashMap<>());
-
             // Set start time
             LocalDateTime startTime = LocalDateTime.now(); // or any other time you desire
             contest.setStartTime(startTime.format(formatter));
-
             // Set end time
             LocalDateTime endTime = startTime.plusDays(7); // for example, end time is 7 days after start time
             contest.setEndTime(endTime.format(formatter));
-
             contest.setDescription("fake contest only for test purpose");
-
             // Do something with contest object, perhaps persist it to a database or store it somewhere
             contestService.createContest(contest);
         }

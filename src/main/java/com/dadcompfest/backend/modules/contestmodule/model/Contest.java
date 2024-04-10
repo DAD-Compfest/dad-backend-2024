@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -30,7 +31,7 @@ public class Contest implements Serializable {
             uniqueConstraints = {@UniqueConstraint(columnNames = {"contest_id", "team_username"})}
     )
     @MapKeyJoinColumn(name = "team_username")
-    private Map<String, Team> teams;
+    private Map<String,Team> teams;
 }
 
 
