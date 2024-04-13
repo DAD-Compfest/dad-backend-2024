@@ -15,6 +15,7 @@ import com.dadcompfest.backend.common.util.ResponseHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -246,18 +247,20 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@CookieValue(value = "jwt", required = false) String token, HttpServletResponse servletResponse) {
         Map<String, Object> response = new HashMap<>();
-        generateLogoutResponse(token, response);
-        servletResponse.addHeader("Set-Cookie", "jwt=; HttpOnly; SameSite=Lax; Max-Age=0");
+        generateLogoutResponse(token, response, servletResponse);
         return ResponseHandler.generateResponse((String) response.get("message"),
                 (HttpStatus) response.get("status"), response);
     }
 
-    private void generateLogoutResponse(String token, Map<String, Object> response) {
+    private void generateLogoutResponse(String token, Map<String, Object> response, HttpServletResponse servletResponse) {
         if (token == null) {
             response.put("message", "Token tidak ditemukan.");
             response.put("status", HttpStatus.BAD_REQUEST);
         } else {
             redisProvider.revoke(token);
+            Cookie cookie = new Cookie("jwt", "");
+            cookie.setMaxAge(0);
+            servletResponse.addCookie(cookie);
             response.put("message", "Berhasil logout");
             response.put("status", HttpStatus.ACCEPTED);
         }
