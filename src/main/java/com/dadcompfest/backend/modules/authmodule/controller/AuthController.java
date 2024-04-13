@@ -15,7 +15,6 @@ import com.dadcompfest.backend.common.util.ResponseHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -258,9 +257,7 @@ public class AuthController {
             response.put("status", HttpStatus.BAD_REQUEST);
         } else {
             redisProvider.revoke(token);
-            Cookie cookie = new Cookie("jwt", "");
-            cookie.setMaxAge(0);
-            servletResponse.addCookie(cookie);
+            servletResponse.addHeader("Set-Cookie", "jwt=; HttpOnly; SameSite=None; Max-Age=0");
             response.put("message", "Berhasil logout");
             response.put("status", HttpStatus.ACCEPTED);
         }
