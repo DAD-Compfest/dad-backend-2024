@@ -106,7 +106,7 @@ public class AuthController {
             if(!validateAdmin(request.getUser(), request.getPasswordConfirmation(), response)){
                 return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.UNAUTHORIZED, response);
             }
-            adminService.createOrUpdate(request.getUser());
+            adminService.changePass(request.getUser().getUsername(), request.getPasswordConfirmation());
             redisProvider.revoke(redisProvider.wrapperEmailTokenKey(request.getUser().getEmail()));
             return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.ACCEPTED, response);
 
@@ -121,7 +121,7 @@ public class AuthController {
             if(!validateTeam(request.getUser(), request.getPasswordConfirmation(), response)){
                 return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.UNAUTHORIZED, response);
             }
-            teamService.createOrUpdate(request.getUser());
+            teamService.changePass(request.getUser().getTeamUsername(), request.getPasswordConfirmation());
             redisProvider.revoke(redisProvider.wrapperEmailTokenKey(request.getUser().getTeamEmail()));
             return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.ACCEPTED, response);
         }, virtualExecutor);

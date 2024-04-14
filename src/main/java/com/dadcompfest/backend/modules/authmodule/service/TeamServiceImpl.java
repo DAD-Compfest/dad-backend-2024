@@ -45,6 +45,15 @@ public class TeamServiceImpl extends UserService<Team>{
         }
     }
 
+    @Override
+    public Team changePass(String username, String newPassword) {
+        Team existingTeam = teamRepository.findByUsername(username);
+        if(existingTeam == null) return  null;
+        existingTeam.setPassword(newPassword);
+        saveTeamAndUpdateCache(existingTeam);
+        return existingTeam;
+    }
+
     @Transactional
     @Override
     public Team createOrUpdate(Team t) {
@@ -96,7 +105,4 @@ public class TeamServiceImpl extends UserService<Team>{
             // Tangani kesalahan jika diperlukan
         }
     }
-
-
-
 }

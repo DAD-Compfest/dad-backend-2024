@@ -26,6 +26,16 @@ public class AdminServiceImpl extends UserService<Admin>{
         return adminRepository.findAll();
     }
 
+    @Override
+    public Admin changePass(String username, String newPassword) {
+        Admin admin =  adminRepository.findByUsername(username);
+        if(admin == null){
+            return  null;
+        }
+        admin.setPassword(newPassword);
+        adminRepository.save(admin);
+        return admin;
+    }
 
     @Transactional
     @Override
