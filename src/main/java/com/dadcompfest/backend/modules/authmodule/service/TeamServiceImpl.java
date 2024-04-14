@@ -78,6 +78,7 @@ public class TeamServiceImpl extends UserService<Team>{
                             redisProvider.getObjectMapper().writeValueAsString(team));
             return teamRepository.save(team);
         } catch (Exception err) {
+            System.out.println(err);
             return null;
         }
     }
