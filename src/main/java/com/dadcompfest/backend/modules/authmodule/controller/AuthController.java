@@ -258,7 +258,7 @@ public class AuthController {
             response.put("status", HttpStatus.BAD_REQUEST);
         } else {
             redisProvider.revoke(token);
-            servletResponse.addHeader("Set-Cookie", "jwt=; HttpOnly; SameSite=None; Max-Age=0");
+            servletResponse.addHeader("Set-Cookie", "jwt=; HttpOnly; SameSite=None; Secure; Path=/; Max-Age=0");
             response.put("message", "Berhasil logout");
             response.put("status", HttpStatus.ACCEPTED);
         }

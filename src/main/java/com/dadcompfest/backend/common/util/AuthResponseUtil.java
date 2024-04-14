@@ -20,7 +20,7 @@ public class AuthResponseUtil {
         Map<String, Object> data = new HashMap<>();
         data.put("team", team);
         String jwt = jwtProvider.createAuthenticationTokenForTeam(team);
-        response.addHeader("Set-Cookie", "jwt=" + jwt + "; HttpOnly; SameSite=None; Secure");
+        response.addHeader("Set-Cookie", "jwt=" + jwt + "; HttpOnly; SameSite=None; Secure; Path=/");
         return ResponseHandler.generateResponse("Login sebagai Tim berhasil", HttpStatus.ACCEPTED, data);
     }
 
@@ -32,7 +32,7 @@ public class AuthResponseUtil {
         Map<String, Object> data = new HashMap<>();
         data.put("admin", admin);
         String jwt = jwtProvider.createAuthenticationTokenForAdmin(admin);
-        response.addHeader("Set-Cookie", "jwt=" + jwt + "; HttpOnly; SameSite=None; Secure");
+        response.addHeader("Set-Cookie", "jwt=" + jwt + "; HttpOnly; SameSite=None; Secure; Path=/");
         return ResponseHandler.generateResponse("Login sebagai Admin berhasil", HttpStatus.ACCEPTED, data);
     }
 }
