@@ -118,6 +118,7 @@ public class AuthController {
     postChangePasswordTeam(@RequestBody RegistrationRequestPOJO<Team> request){
         return  CompletableFuture.supplyAsync(()->{
             Map<String, Object> response = new HashMap<>();
+            request.getUser().setRawPassword(AuthProvider.getInstance().encode(request.getUser().getPassword()));
             if(!validateTeam(request.getUser(), request.getPasswordConfirmation(), response)){
                 return ResponseHandler.generateResponse((String) response.get("message"), HttpStatus.UNAUTHORIZED, response);
             }
