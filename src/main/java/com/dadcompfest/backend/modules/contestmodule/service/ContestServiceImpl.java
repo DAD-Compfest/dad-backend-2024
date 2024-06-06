@@ -1,45 +1,43 @@
 package com.dadcompfest.backend.modules.contestmodule.service;
 import com.dadcompfest.backend.modules.authmodule.model.Team;
 import com.dadcompfest.backend.modules.contestmodule.model.Contest;
-import com.dadcompfest.backend.modules.contestmodule.adapter.RedisContest;
 import com.dadcompfest.backend.modules.contestmodule.repository.ContestRepository;
-import com.dadcompfest.backend.modules.contestmodule.repository.RedisContestRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 
 @Service
 public class ContestServiceImpl implements ContestService{
 
     @Autowired
-    private ContestRepository postgresContestRepository;
-    @Autowired
-    private RedisContestRepository redisContestRepository;
-    private static final Logger logger = LogManager.getLogger(ContestServiceImpl.class);
+    private ContestRepository contestRepository;
+
+
 
 
     @Override
     public Contest createContest(Contest contest) {
-        RedisContest redisContest = new RedisContest(contest);
-        return redisContestRepository.save(redisContest).getContest();
+        return contestRepository.save(contest);
     }
     @Override
     public Contest joinContest(String contestId, Team team) {
         Contest contest = getContestById(contestId);
         contest.getTeams().put(contestId, team);
-        RedisContest redisContest = new RedisContest(contest);
-        redisContestRepository.save(redisContest);
         return contest;
     }
     @Override
     public Contest getContestById(String contestId) {
-        RedisContest redisContest = redisContestRepository.findById(contestId).orElseGet(()->null);
-        if(redisContest != null){
-            logger.info("cached");
-            return  redisContest.getContest();
-        }
-        return postgresContestRepository.findById(contestId).orElseGet(()->null);
+        UUID uuid = UUID.fromString(contestId);
+        return contestRepository.findById(uuid).orElseGet(()-> null);
+    }
+
+    @Override
+    public List<Contest> getAll() {
+        return contestRepository.findAll();
     }
 }

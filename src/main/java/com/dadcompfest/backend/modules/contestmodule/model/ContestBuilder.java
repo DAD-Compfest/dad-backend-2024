@@ -4,16 +4,17 @@ import com.dadcompfest.backend.modules.authmodule.model.Team;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class ContestBuilder {
-    private String contestId;
+    private UUID contestId;
     private String contestName;
     private String description;
     private String startTime;
     private String endTime;
     private Map<String,Team> teams;
 
-    public ContestBuilder setContestId(String contestId) {
+    public ContestBuilder setContestId(UUID contestId) {
         this.contestId = contestId;
         return this;
     }

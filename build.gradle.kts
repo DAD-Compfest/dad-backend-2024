@@ -46,7 +46,6 @@ dependencies {
 	implementation("org.springframework.kafka:spring-kafka")
 	implementation("org.springframework.modulith:spring-modulith-starter-core")
 	implementation("org.springframework.modulith:spring-modulith-starter-jpa")
-	//implementation("org.springframework.session:spring-session-jdbc")
 	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 	implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("io.jsonwebtoken:jjwt-impl:0.11.2")

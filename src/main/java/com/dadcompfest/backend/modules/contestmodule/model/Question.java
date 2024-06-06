@@ -1,6 +1,7 @@
 package com.dadcompfest.backend.modules.contestmodule.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,5 +24,7 @@ public class Question implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contest_id")
     private Contest contest;
+    public Question() {
 
+    }
 }

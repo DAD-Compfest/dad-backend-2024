@@ -5,19 +5,21 @@ import com.dadcompfest.backend.modules.authmodule.model.Team;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
 public class Contest implements Serializable {
     @Id
-    @Column(name = "contest_id")
-    private String contestId;
-
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "contest_id", updatable = false, nullable = false)
+    private UUID contestId;
     private String contestName;
     private String description;
     private String startTime;
