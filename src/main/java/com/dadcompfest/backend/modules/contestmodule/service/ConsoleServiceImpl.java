@@ -22,23 +22,19 @@ public class ConsoleServiceImpl implements ConsoleService {
 
         jdbcTemplate.execute("SET SEARCH_PATH TO " + schemaName);
 
-        if(command.contains("select") && commandSplit.size() > 1) {
-
-            return "Operasi SELECT tidak boleh ditulis dengan multi query!";
-
-        }else if(command.contains("select") && commandSplit.size() == 1) {
-            try {
+        try {
+            if (command.contains("select") && commandSplit.size() > 1) {
+                return "Operasi SELECT tidak boleh ditulis dengan multi query!";
+            } else if (command.contains("select") && commandSplit.size() == 1) {
                 return jdbcTemplate.queryForList(command);
-            } catch (Exception e) {
-                return "Error executing command: " + e.getMessage();
-            }
-        }else {
-            try {
+            } else {
                 jdbcTemplate.execute(command);
                 return "Berhasil melakukan query";
-            } catch (Exception e) {
-                return "Error executing command: " + e.getMessage();
             }
+        } catch (Exception e) {
+            return "Error executing command: " + e.getMessage();
+        } finally {
+            jdbcTemplate.execute("SET SEARCH_PATH TO public");
         }
     }
 }
