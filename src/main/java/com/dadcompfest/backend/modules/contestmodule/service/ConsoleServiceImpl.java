@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ConsoleServiceImpl implements ConsoleService {
 
@@ -12,18 +14,31 @@ public class ConsoleServiceImpl implements ConsoleService {
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public String executeCommand(String contestName, DTOContestConsole dtoContestConsole) {
+    public Object executeCommand(String contestName, DTOContestConsole dtoContestConsole) {
         String schemaName = "contest_" + contestName.toLowerCase().replaceAll("\\s+", "_");
-        String command = dtoContestConsole.getCommand();
+        String command = dtoContestConsole.getCommand().toLowerCase();
 
-        try {
-            jdbcTemplate.execute("SET SEARCH_PATH TO " + schemaName);
+        List<String> commandSplit = List.of(command.split(";"));
 
-            jdbcTemplate.execute(command);
+        jdbcTemplate.execute("SET SEARCH_PATH TO " + schemaName);
 
-            return "command executed successfully in schema: " + schemaName;
-        } catch (Exception e) {
-            return "Error executing DDL command: " + e.getMessage();
+        if(command.contains("select") && commandSplit.size() > 1) {
+
+            return "Operasi SELECT tidak boleh ditulis dengan multi query!";
+
+        }else if(command.contains("select") && commandSplit.size() == 1) {
+            try {
+                return jdbcTemplate.queryForList(command);
+            } catch (Exception e) {
+                return "Error executing command: " + e.getMessage();
+            }
+        }else {
+            try {
+                jdbcTemplate.execute(command);
+                return "Berhasil melakukan query";
+            } catch (Exception e) {
+                return "Error executing command: " + e.getMessage();
+            }
         }
     }
 }

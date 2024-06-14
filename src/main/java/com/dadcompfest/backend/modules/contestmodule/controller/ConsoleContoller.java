@@ -14,11 +14,11 @@ public class ConsoleContoller {
     private ConsoleService consoleService;
 
     @PostMapping("/execute")
-    public ResponseEntity<String> executeCommand(
+    public ResponseEntity<Object> executeCommand(
             @PathVariable String contestName,
             @RequestBody DTOContestConsole dtoContestConsole
     ) {
-        String result = consoleService.executeCommand(contestName, dtoContestConsole);
+        Object result = consoleService.executeCommand(contestName, dtoContestConsole);
         return ResponseEntity.ok(result);
     }
 }
