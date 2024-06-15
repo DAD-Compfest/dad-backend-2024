@@ -3,6 +3,10 @@ package com.dadcompfest.backend.modules.contestmodule.service;
 import com.dadcompfest.backend.modules.contestmodule.model.dto.DTOContestConsole;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -16,23 +20,33 @@ public class ConsoleServiceImpl implements ConsoleService {
     private EntityManager entityManager;
 
     @Override
+    @Transactional
     public Object executeCommand(String contestName, DTOContestConsole dtoContestConsole) {
         String schemaName = "contest_" + contestName.toLowerCase().replaceAll("\\s+", "_");
         String command = dtoContestConsole.getCommand().toLowerCase();
+        Logger logger = LoggerFactory.getLogger(ConsoleServiceImpl.class);
 
         List<String> commandSplit = List.of(command.split(";"));
 
         try {
             if (command.contains("select") && commandSplit.size() > 1) {
                 return "Operasi SELECT tidak boleh ditulis dengan multi query!";
-            } else if (command.contains("select") && commandSplit.size() == 1) {
-                return entityManager.createNativeQuery("SET SEARCH_PATH TO " + schemaName + ";" + command);
             } else {
-                entityManager.createNativeQuery("SET SEARCH_PATH TO " + schemaName + ";" + command);;
-                return "Berhasil melakukan query";
+                entityManager.createNativeQuery("SET SEARCH_PATH TO " + schemaName).executeUpdate();
+
+                if (command.contains("select") && commandSplit.size() == 1) {
+                    return entityManager.createNativeQuery(command).getResultList();
+                } else {
+                    entityManager.createNativeQuery(command).executeUpdate();
+                    return "Berhasil melakukan query";
+                }
             }
+        } catch (PersistenceException e) {
+            logger.error("Error executing command: {}", e.getMessage());
+            return "Tidak bisa melakukan query";
         } catch (Exception e) {
-            return "Error executing command: " + e.getMessage();
+            logger.error("Unexpected error occurred: {}", e.getMessage(), e);
+            return "Unexpected error occurred: " + e.getMessage();
         }
     }
 }
