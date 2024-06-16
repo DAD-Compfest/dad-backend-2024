@@ -21,6 +21,7 @@ public class Question implements Serializable {
     private  String question;
     private  String answer;
     private  int pointProvided;
+    private String questionImage;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contest_id")
     private Contest contest;

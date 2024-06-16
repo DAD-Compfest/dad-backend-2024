@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface QuestionService {
     void createQuestion(DTOQuestionCreation question);
+    void editQuestion(Long questionId, DTOQuestionCreation question);
+    void deleteQuestion(Long questionId);
     List<Question> getQuestionsByContestId(String contestId);
 }

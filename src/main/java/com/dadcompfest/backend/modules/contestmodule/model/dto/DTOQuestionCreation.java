@@ -12,5 +12,6 @@ public class DTOQuestionCreation {
     private String question;
     private String answer;
     private int pointProvided;
+    private String questionImage;
     private String contestId;
 }

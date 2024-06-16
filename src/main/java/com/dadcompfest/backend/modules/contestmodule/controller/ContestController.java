@@ -65,7 +65,11 @@ public class ContestController {
                 HttpStatus.ACCEPTED, data);
     }
 
-
+    @DeleteMapping("/delete/{contestId}")
+    public ResponseEntity<Object> deleteContest(@PathVariable String contestId){
+        contestService.deleteContest(contestId);
+        return ResponseEntity.ok().build();
+    }
 
 }
 
