@@ -35,18 +35,21 @@ public class ConsoleServiceImpl implements ConsoleService {
         String schemaName = "contest_" + contestName.toLowerCase().replaceAll("\\s+", "_");
         String command = dtoContestConsole.getCommand().toLowerCase();
         List<String> commandSplit = List.of(command.split(";"));
-
+        List<String> modifiedCommandSplit = new ArrayList<>();
+        for(int i = 0; i < commandSplit.size(); i++){
+            modifiedCommandSplit.add(modifyCommandWithSchema(commandSplit.get(i), schemaName));
+        }
         try {
-            String modifiedCommand = modifyCommandWithSchema(command, schemaName);
-
             if (command.contains("select") && commandSplit.size() > 1) {
                 throw new BadRequestException("Operasi SELECT tidak boleh ditulis dengan multi query!");
             } else {
                 Object result;
                 if (command.contains("select") && commandSplit.size() == 1) {
-                    result = jdbcTemplate.queryForList(modifiedCommand);
+                    result = jdbcTemplate.queryForList(modifiedCommandSplit.get(0));
                 } else {
-                    jdbcTemplate.execute(modifiedCommand);
+                    for(int i = 0; i < commandSplit.size(); i++){
+                        jdbcTemplate.execute(modifiedCommandSplit.get(i));
+                    }
                     result = "Berhasil melakukan query";
                 }
                 return result;
