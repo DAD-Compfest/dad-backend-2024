@@ -33,7 +33,7 @@ public class ConsoleContoller {
             data.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(data);
         } catch (Exception e) {
-            data.put("code", HttpStatus.BAD_REQUEST.value());
+            data.put("code", HttpStatus.INTERNAL_SERVER_ERROR.value());
             data.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(data);
         }
