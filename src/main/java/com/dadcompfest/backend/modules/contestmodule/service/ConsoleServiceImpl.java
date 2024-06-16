@@ -34,21 +34,44 @@ public class ConsoleServiceImpl implements ConsoleService {
     public Object executeCommand(String contestName, DTOContestConsole dtoContestConsole) throws BadRequestException {
         String schemaName = "contest_" + contestName.toLowerCase().replaceAll("\\s+", "_");
         String command = dtoContestConsole.getCommand().toLowerCase();
-        List<String> commandSplit = List.of(command.split(";"));
-        List<String> modifiedCommandSplit = new ArrayList<>();
-        for(int i = 0; i < commandSplit.size(); i++){
-            modifiedCommandSplit.add(modifyCommandWithSchema(commandSplit.get(i), schemaName));
+        String queryTableName = String.format(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'"
+                ,schemaName
+            );
+
+        if(command.contains("table")){
+            command = command.replaceAll("(?i)\\btable\\b\\s+(\\w+)", "TABLE " + schemaName + ".$1");
         }
+
+        List<Map<String, Object>> tableName = jdbcTemplate.queryForList(queryTableName);
+
+        for(Map<String, Object> table : tableName){
+            command = command.replaceAll(
+                    String.format("(?i)\\b%s\\b", table.get("table_name")),
+                    schemaName + "." + table.get("table_name"));
+        }
+
+        List<String> commandSplit = List.of(command.split(";"));
+
         try {
             if (command.contains("select") && commandSplit.size() > 1) {
                 throw new BadRequestException("Operasi SELECT tidak boleh ditulis dengan multi query!");
             } else {
                 Object result;
                 if (command.contains("select") && commandSplit.size() == 1) {
-                    result = jdbcTemplate.queryForList(modifiedCommandSplit.get(0));
+                    result = jdbcTemplate.queryForList(commandSplit.getFirst());
                 } else {
                     for(int i = 0; i < commandSplit.size(); i++){
-                        jdbcTemplate.execute(modifiedCommandSplit.get(i));
+                        jdbcTemplate.execute(commandSplit.get(i));
+
+                        if(commandSplit.get(i).contains("create")){
+                            String tableNameNew = command.split(
+                                    schemaName + "\\.")[1].split("\\s+|\\(")[0];
+                            command = command.replaceAll(
+                                    String.format("(?i)\\b%s\\b", tableNameNew),
+                                    schemaName + "." + tableNameNew);
+                            commandSplit = List.of(command.split(";"));
+                        }
                     }
                     result = "Berhasil melakukan query";
                 }
@@ -64,21 +87,6 @@ public class ConsoleServiceImpl implements ConsoleService {
             logger.error("Unexpected error occurred: {}", e.getMessage(), e);
             return "Unexpected error occurred: " + e.getMessage();
         }
-    }
-
-    private String modifyCommandWithSchema(String command, String schemaName) {
-        String modifiedCommand = command;
-        modifiedCommand = modifiedCommand.replaceFirst("(?i)create\\s+table\\s+", "CREATE TABLE " + schemaName + ".");
-        modifiedCommand = modifiedCommand.replaceFirst("(?i)alter\\s+table\\s+", "ALTER TABLE " + schemaName + ".");
-        modifiedCommand = modifiedCommand.replaceFirst("(?i)drop\\s+table\\s+", "DROP TABLE " + schemaName + ".");
-        modifiedCommand = modifiedCommand.replaceFirst("(?i)create\\s+index\\s+", "CREATE INDEX " + schemaName + ".");
-        modifiedCommand = modifiedCommand.replaceFirst("(?i)drop\\s+index\\s+", "DROP INDEX " + schemaName + ".");
-        modifiedCommand = modifiedCommand.replaceFirst("(?i)insert\\s+into\\s+", "INSERT INTO " + schemaName + ".");
-        modifiedCommand = modifiedCommand.replaceFirst("(?i)update\\s+", "UPDATE " + schemaName + ".");
-        modifiedCommand = modifiedCommand.replaceFirst("(?i)delete\\s+from\\s+", "DELETE FROM " + schemaName + ".");
-        modifiedCommand = modifiedCommand.replaceFirst("(?i)select\\s+", "SELECT ");
-        modifiedCommand = modifiedCommand.replaceAll("(?i)from\\s+([^\\s]+)", "FROM " + schemaName + ".$1");
-        return modifiedCommand;
     }
 
 }

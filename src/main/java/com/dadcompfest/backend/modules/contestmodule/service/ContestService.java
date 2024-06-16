@@ -9,6 +9,6 @@ public interface ContestService {
     Contest createContest(Contest contest);
     Contest joinContest(String contestId, Team team);
     Contest getContestById(String contestId);
-
+    void deleteContest(String contestId);
     List<Contest> getAll();
 }
