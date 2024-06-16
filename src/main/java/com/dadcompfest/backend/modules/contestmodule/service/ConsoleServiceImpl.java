@@ -7,9 +7,11 @@ import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.Selection;
 import jakarta.transaction.Transactional;
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,7 @@ public class ConsoleServiceImpl implements ConsoleService {
 
     @Override
     @Transactional
-    public Object executeCommand(String contestName, DTOContestConsole dtoContestConsole) {
+    public Object executeCommand(String contestName, DTOContestConsole dtoContestConsole) throws BadRequestException {
         String schemaName = "contest_" + contestName.toLowerCase().replaceAll("\\s+", "_");
         String command = dtoContestConsole.getCommand().toLowerCase();
         List<String> commandSplit = List.of(command.split(";"));
@@ -38,7 +40,7 @@ public class ConsoleServiceImpl implements ConsoleService {
             String modifiedCommand = modifyCommandWithSchema(command, schemaName);
 
             if (command.contains("select") && commandSplit.size() > 1) {
-                return "Operasi SELECT tidak boleh ditulis dengan multi query!";
+                throw new BadRequestException("Operasi SELECT tidak boleh ditulis dengan multi query!");
             } else {
                 Object result;
                 if (command.contains("select") && commandSplit.size() == 1) {
@@ -49,9 +51,12 @@ public class ConsoleServiceImpl implements ConsoleService {
                 }
                 return result;
             }
-        } catch (PersistenceException e) {
+        } catch (BadSqlGrammarException e) {
             logger.error("Error executing command: {}", e.getMessage());
-            return "Tidak bisa melakukan query";
+            throw new BadSqlGrammarException("", "Kesalahan dalam syntax SQL", e.getSQLException());
+        } catch (BadRequestException e) {
+            logger.error("Error executing command: {}", e.getMessage());
+            throw new BadRequestException("Kesalahan dalam syntax SQL");
         } catch (Exception e) {
             logger.error("Unexpected error occurred: {}", e.getMessage(), e);
             return "Unexpected error occurred: " + e.getMessage();
