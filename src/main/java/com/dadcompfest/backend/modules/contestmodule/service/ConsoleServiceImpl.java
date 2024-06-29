@@ -26,7 +26,6 @@ public class ConsoleServiceImpl implements ConsoleService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-
     private static final Logger logger = LoggerFactory.getLogger(ConsoleServiceImpl.class);
 
     @Override
@@ -38,6 +37,21 @@ public class ConsoleServiceImpl implements ConsoleService {
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'"
                 ,schemaName
             );
+        String querySchemaName = "SELECT schema_name, schema_owner\n" +
+                "FROM information_schema.schemata;";
+
+        List<Map<String, Object>> ListSchemaName = jdbcTemplate.queryForList(querySchemaName);
+
+        for(Map<String, Object> schema : ListSchemaName){
+            Object nameSchemaNow = schema.get("schema_name");
+            if(command.contains(nameSchemaNow.toString()) && !nameSchemaNow.equals(schemaName)){
+                throw new BadRequestException("Access to schema or command not allowed.");
+            }
+        }
+
+        if (command.contains("information_schema")) {
+            throw new BadRequestException("Access to schema or command not allowed.");
+        }
 
         if(command.contains("table")){
             command = command.replaceAll("(?i)\\btable\\b\\s+(\\w+)", "TABLE " + schemaName + ".$1");
