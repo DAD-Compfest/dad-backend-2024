@@ -49,6 +49,12 @@ public class ContestController {
         contestService.unbanTeam(unbanTeam);
         return "OK";
     }
+
+    @PostMapping("/kick-team")
+    public String kickTeam(@RequestBody DTOBanTeam kickTeam){
+        contestService.kickTeam(kickTeam);
+        return "OK";
+    }
     
 
     @PostMapping("/create")

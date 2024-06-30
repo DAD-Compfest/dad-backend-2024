@@ -92,5 +92,14 @@ public class ContestServiceImpl implements ContestService{
         }
     }
 
+    @Override
+    public void kickTeam(DTOBanTeam kickTeamInfo) {
+        Contest contest = getContestById(kickTeamInfo.getContestId());
+        if(contest != null){
+            contest.getTeams().remove(kickTeamInfo.getTeamUsername());
+            contestRepository.save(contest);
+        }
+    }
+
 
 }

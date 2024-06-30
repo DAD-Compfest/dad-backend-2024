@@ -14,4 +14,5 @@ public interface ContestService {
     List<Contest> getAll();
     void banTeam(DTOBanTeam bannedTeamInfo);
     void unbanTeam(DTOBanTeam unbannedTeamInfo);
+    void kickTeam(DTOBanTeam kickTeamInfo);
 }
