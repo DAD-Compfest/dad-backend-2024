@@ -50,6 +50,7 @@ public class ContestController {
     @GetMapping("/data/{id}")
     public ResponseEntity<Object> getContestById(@PathVariable String id){
         Map<String, Object> data = new HashMap<>();
+        System.out.println("ANJENGGG "+id);
         data.put("message", "Berhasil mendapat data contest");
         data.put("contest", contestService.getContestById(id));
         return ResponseHandler.generateResponse("Berhasil mendapat data contest",

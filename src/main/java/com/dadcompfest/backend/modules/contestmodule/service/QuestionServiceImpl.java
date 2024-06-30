@@ -66,6 +66,8 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public List<Question> getQuestionsByContestId(String contestId) {
-        return questionRepository.findByContestId(UUID.fromString(contestId));
+        UUID contestIdUuid = UUID.fromString(contestId);
+        List<Question> questions = questionRepository.findByContestId(contestIdUuid);
+        return questions;
     }
 }

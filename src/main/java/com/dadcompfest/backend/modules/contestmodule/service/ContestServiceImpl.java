@@ -51,8 +51,15 @@ public class ContestServiceImpl implements ContestService{
     }
     @Override
     public Contest getContestById(String contestId) {
-        UUID uuid = UUID.fromString(contestId);
-        return contestRepository.findById(uuid).orElseGet(()-> null);
+        try{
+            UUID uuid = UUID.fromString(contestId);
+            System.out.println(contestId);
+            return contestRepository.findById(uuid).orElseGet(()-> null);
+        }
+        catch(Exception err){
+            System.out.println(err.getMessage());
+            return null;
+        }
     }
 
     @Override

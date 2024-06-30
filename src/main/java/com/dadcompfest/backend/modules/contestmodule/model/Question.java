@@ -7,6 +7,9 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Getter
 @Setter
@@ -21,9 +24,11 @@ public class Question implements Serializable {
     private  String question;
     private  String answer;
     private  int pointProvided;
+    @Column(nullable = true) // This makes questionImage nullable
     private String questionImage;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contest_id")
+    @JsonIgnore
     private Contest contest;
     public Question() {
 
