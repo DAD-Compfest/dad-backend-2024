@@ -2,10 +2,13 @@ package com.dadcompfest.backend.modules.contestmodule.controller;
 
 
 import com.dadcompfest.backend.common.util.ResponseHandler;
+import com.dadcompfest.backend.modules.authmodule.model.Team;
+import com.dadcompfest.backend.modules.authmodule.service.UserService;
 import com.dadcompfest.backend.modules.contestmodule.model.Contest;
 import com.dadcompfest.backend.modules.contestmodule.model.ContestBuilder;
 import com.dadcompfest.backend.modules.contestmodule.model.dto.DTOContestCreation;
 import com.dadcompfest.backend.modules.contestmodule.model.dto.DTOContestModification;
+import com.dadcompfest.backend.modules.contestmodule.model.dto.DTOTeamJoinContest;
 import com.dadcompfest.backend.modules.contestmodule.service.ContestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,13 +17,26 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/contest")
 public class ContestController {
     @Autowired
     ContestService contestService;
+    @Autowired 
+    UserService<Team> teamService;
 
+    
+    @PostMapping("/join-contest")
+    public String joinContest(@RequestBody DTOTeamJoinContest body) {
+        Team team = teamService.findByUsername(body.getTeamUsername());
+        contestService.joinContest(body.getContestId(), team);
+        return "OK";
+    }
+    
 
     @PostMapping("/create")
     public String addContest(@RequestBody DTOContestCreation body){

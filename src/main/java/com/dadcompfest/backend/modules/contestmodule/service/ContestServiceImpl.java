@@ -46,7 +46,7 @@ public class ContestServiceImpl implements ContestService{
     @Override
     public Contest joinContest(String contestId, Team team) {
         Contest contest = getContestById(contestId);
-        contest.getTeams().put(contestId, team);
+        contest.getTeams().put(team.getTeamUsername(), team);
         return contest;
     }
     @Override
