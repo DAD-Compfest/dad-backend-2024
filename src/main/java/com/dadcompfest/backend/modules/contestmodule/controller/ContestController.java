@@ -6,6 +6,7 @@ import com.dadcompfest.backend.modules.authmodule.model.Team;
 import com.dadcompfest.backend.modules.authmodule.service.UserService;
 import com.dadcompfest.backend.modules.contestmodule.model.Contest;
 import com.dadcompfest.backend.modules.contestmodule.model.ContestBuilder;
+import com.dadcompfest.backend.modules.contestmodule.model.dto.DTOBanTeam;
 import com.dadcompfest.backend.modules.contestmodule.model.dto.DTOContestCreation;
 import com.dadcompfest.backend.modules.contestmodule.model.dto.DTOContestModification;
 import com.dadcompfest.backend.modules.contestmodule.model.dto.DTOTeamJoinContest;
@@ -34,6 +35,18 @@ public class ContestController {
     public String joinContest(@RequestBody DTOTeamJoinContest body) {
         Team team = teamService.findByUsername(body.getTeamUsername());
         contestService.joinContest(body.getContestId(), team);
+        return "OK";
+    }
+
+    @PostMapping("/ban-team")
+    public String banTeam(@RequestBody DTOBanTeam banTeam){
+        contestService.banTeam(banTeam);
+        return "OK";
+    }
+    
+    @PostMapping("/unban-team")
+    public String unbanTeam(@RequestBody DTOBanTeam unbanTeam){
+        contestService.unbanTeam(unbanTeam);
         return "OK";
     }
     
@@ -66,7 +79,6 @@ public class ContestController {
     @GetMapping("/data/{id}")
     public ResponseEntity<Object> getContestById(@PathVariable String id){
         Map<String, Object> data = new HashMap<>();
-        System.out.println("ANJENGGG "+id);
         data.put("message", "Berhasil mendapat data contest");
         data.put("contest", contestService.getContestById(id));
         return ResponseHandler.generateResponse("Berhasil mendapat data contest",

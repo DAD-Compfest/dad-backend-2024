@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,6 +35,11 @@ public class Contest implements Serializable {
     )
     @MapKeyJoinColumn(name = "team_username")
     private Map<String,Team> teams;
+
+    @ElementCollection
+    @MapKeyJoinColumn(name = "team_username")
+    @Column(name = "banned")
+    private Map<String, Boolean> bannedTeams;
 }
 
 

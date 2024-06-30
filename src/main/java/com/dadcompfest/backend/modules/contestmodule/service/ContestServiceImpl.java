@@ -2,6 +2,7 @@ package com.dadcompfest.backend.modules.contestmodule.service;
 import com.dadcompfest.backend.modules.authmodule.model.Team;
 import com.dadcompfest.backend.modules.contestmodule.model.Contest;
 import com.dadcompfest.backend.modules.contestmodule.model.Question;
+import com.dadcompfest.backend.modules.contestmodule.model.dto.DTOBanTeam;
 import com.dadcompfest.backend.modules.contestmodule.repository.ContestRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -73,6 +74,22 @@ public class ContestServiceImpl implements ContestService{
     @Override
     public List<Contest> getAll() {
         return contestRepository.findAll();
+    }
+    @Override
+    public void banTeam(DTOBanTeam bannedTeamInfo) {
+        Contest contest = getContestById(bannedTeamInfo.getContestId());
+        if(contest != null){
+            contest.getBannedTeams().put(bannedTeamInfo.getTeamUsername(), true);
+            contestRepository.save(contest);
+        }
+    }
+    @Override
+    public void unbanTeam(DTOBanTeam unbannedTeamInfo) {
+        Contest contest = getContestById(unbannedTeamInfo.getContestId());
+        if(contest != null){
+            contest.getBannedTeams().remove(unbannedTeamInfo.getTeamUsername());
+            contestRepository.save(contest);
+        }
     }
 
 
